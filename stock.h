@@ -18,10 +18,11 @@ public:
 	stock(string symbol);
 	int length;
 	void next_day();
+	time_t operation_time;
 private:
 	string symbol;
 	quote content;
 	const string url_base = "http://real-chart.finance.yahoo.com/table.csv?s=";
 	vector<string> initialize();
-	tm operation_date;
+	
 };

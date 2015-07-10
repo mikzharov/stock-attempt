@@ -51,12 +51,13 @@ public:
 	stock(string symbol);
 	int length;
 	void next_day();
+	time_t operation_time;
 private:
 	string symbol;
 	quote content;
 	const string url_base = "http://real-chart.finance.yahoo.com/table.csv?s=";
 	vector<string> initialize();
-	tm operation_date;
+	
 };
 
 vector<string> stock::initialize() {
@@ -89,6 +90,7 @@ vector<string> stock::initialize() {
 		string line;
 		getline(f, line);
 		while (getline(f, line)) {
+			if (line.empty())continue;
 			result.push_back(line);
 		}
 		return result;
@@ -144,10 +146,25 @@ stock::stock(string symbol) {
 		b++;
 	}
 	length = b;
-	stringstream ss(content.date[0]);
-	cout << content.date[0] << endl;
-	ss >> get_time(&operation_date, "%Y-%m-%d");
+	tm time;
+	stringstream ss(content.date[length - 1]);
+	ss >> get_time(&time, "%Y-%m-%d");
+	time.tm_hour = 0;
+	time.tm_min = 0;
+	time.tm_sec = 0;
+	operation_time = mktime(&time);
+	if (operation_time == -1) {
+		throw exception("Operation time is invalid");
+	}
 }
 void stock::next_day() {
-	
+	operation_time += 86400;
+	tm temp;
+	localtime_s(&temp, &operation_time);
+	if (temp.tm_wday == 0) {
+		operation_time += 86400;
+	}
+	if (temp.tm_wday == 6) {
+		operation_time += 86400 * 2;
+	}
 }
