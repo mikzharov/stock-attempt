@@ -8,6 +8,7 @@
 #include <sstream>
 #include <iomanip>
 #include <chrono>
+#include <assert.h>
 using namespace std;
 static size_t write_data(char *contents, size_t size, size_t nmemb, string &userp) {
 	
@@ -18,6 +19,16 @@ static size_t write_data(char *contents, size_t size, size_t nmemb, string &user
 	}
 
 	return size * nmemb;
+}
+tm string_to_date(const string &date) {
+	tm time;
+	stringstream ss(date);
+	ss >> get_time(&time, "%Y-%m-%d");
+	time.tm_hour = 0;
+	time.tm_min = 0;
+	time.tm_sec = 0;
+	
+	return time;
 }
 class quote {
 public:
@@ -49,10 +60,13 @@ quote::~quote() {
 class stock {
 public:
 	stock(string symbol);
+	tm get_date();
 	int length;
 	void next_day();
 	time_t operation_time;
+	
 private:
+	int array_index;
 	string symbol;
 	quote content;
 	const string url_base = "http://real-chart.finance.yahoo.com/table.csv?s=";
@@ -146,25 +160,34 @@ stock::stock(string symbol) {
 		b++;
 	}
 	length = b;
+	array_index = length - 1;
 	tm time;
-	stringstream ss(content.date[length - 1]);
-	ss >> get_time(&time, "%Y-%m-%d");
-	time.tm_hour = 0;
-	time.tm_min = 0;
-	time.tm_sec = 0;
+	
+	time = string_to_date(content.date[length - 1]);
 	operation_time = mktime(&time);
 	if (operation_time == -1) {
 		throw exception("Operation time is invalid");
 	}
 }
 void stock::next_day() {
-	operation_time += 86400;
+	operation_time += 86400;//adds a day
 	tm temp;
 	localtime_s(&temp, &operation_time);
 	if (temp.tm_wday == 0) {
 		operation_time += 86400;
-	}
+	}//Skips weekends
 	if (temp.tm_wday == 6) {
 		operation_time += 86400 * 2;
 	}
+	if(array_index != 0){
+		array_index--;
+	}
+	tm now = get_date();
+	localtime_s(&temp, &operation_time);
+	assert(now.tm_year == temp.tm_year);
+	assert(now.tm_mon == temp.tm_mon);
+	assert(now.tm_mday == temp.tm_mday);
+}
+tm stock::get_date() {
+	return string_to_date(content.date[array_index]);
 }
