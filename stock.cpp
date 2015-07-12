@@ -1,5 +1,6 @@
 #include "stdafx.h"
 #include <stdio.h>
+#include "stock.h"
 #include <string>
 #include <iostream>
 #include <fstream>
@@ -30,17 +31,7 @@ tm string_to_date(const string &date) {
 	
 	return time;
 }
-class quote {
-public:
-	string *date = nullptr;
-	double *open = nullptr;
-	double *high = nullptr;
-	double *low = nullptr;
-	double *close = nullptr;
-	long *volume = nullptr;
-	double *adjusted = nullptr;
-	~quote();
-};
+
 quote::~quote() {
 	if(date != nullptr)
 	delete[] date;
@@ -57,22 +48,7 @@ quote::~quote() {
 	if (adjusted != nullptr)
 	delete[] adjusted;
 }
-class stock {
-public:
-	stock(string symbol);
-	tm get_date();
-	int length;
-	void next_day();
-	time_t operation_time;
-	
-private:
-	int array_index;
-	string symbol;
-	quote content;
-	const string url_base = "http://real-chart.finance.yahoo.com/table.csv?s=";
-	vector<string> initialize();
-	
-};
+
 
 vector<string> stock::initialize() {
 	CURL *curl;

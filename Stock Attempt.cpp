@@ -14,7 +14,7 @@
 #include <iomanip>
 #include <chrono>
 
-
+#include <cstdlib>
 #include "stock.h"
 using namespace std;
 
@@ -24,7 +24,7 @@ using namespace std;
 int main()
 {
 	tm temp;
-
+	cout << RAND_MAX;
 
 
 	try{
