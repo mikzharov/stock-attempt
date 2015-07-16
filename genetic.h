@@ -11,10 +11,11 @@ public:
 class gen_container {
 public:
 	node node;
-	double balance;
-	int stock_quant;
+	double balance = 0;
+	int stock_quant = 0;
 	stock * stock_obj;
-	gen_container() {};
+	gen_container() {}; 
+	gen_container(stock &s) { stock_obj = &s; };
 	gen_container(string stock_name);
 };
 class multiply : public node {
@@ -24,13 +25,13 @@ public:
 	double execute();
 	~multiply();
 	void destroy() { this->~multiply(); };
-	gen_container parent_cont;
+	gen_container * parent_cont;
 	multiply(gen_container &cont, int level = 1);
 
 };
 class divide : public node {
 public:
-	gen_container parent_cont;
+	gen_container * parent_cont;
 	node *left;
 	node *right;
 	double execute();
@@ -40,7 +41,7 @@ public:
 };
 class add : public node {
 public:
-	gen_container parent_cont;
+	gen_container * parent_cont;
 	node *left;
 	node *right;
 	double execute();
@@ -50,7 +51,7 @@ public:
 };
 class subtract : public node {
 public:
-	gen_container parent_cont;
+	gen_container * parent_cont;
 	node *left;
 	node *right;
 	double execute();
@@ -60,7 +61,7 @@ public:
 };
 class buy : public node {
 public:
-	gen_container parent_cont;
+	gen_container * parent_cont;
 	double execute();
 	~buy();
 	void destroy() { this->~buy(); };

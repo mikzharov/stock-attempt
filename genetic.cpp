@@ -63,6 +63,7 @@ multiply::multiply(gen_container &cont, int level) {
 multiply::~multiply() {
 	delete right;
 	delete left;
+	delete parent_cont;
 }
 double divide::execute() {
 	if ((*left).execute()==0) {
@@ -76,6 +77,7 @@ divide::divide(gen_container &cont, int level) {
 }
 divide::~divide() {
 	delete right;
+	delete parent_cont;
 	delete left;
 }
 double add::execute() {
@@ -87,6 +89,7 @@ add::add(gen_container &cont, int level) {
 }
 add::~add() {
 	delete right;
+	delete parent_cont;
 	delete left;
 }
 double subtract::execute() {
@@ -99,17 +102,22 @@ subtract::subtract(gen_container &cont, int level) {
 subtract::~subtract() {
 	delete right;
 	delete left;
+	delete parent_cont;
 }
 double buy::execute() {
-	if (parent_cont.balance >= (*parent_cont.stock_obj).get_high()) {
-		parent_cont.stock_quant++;
-		parent_cont.balance -= (*parent_cont.stock_obj).get_high();
+	double high = (*(*parent_cont).stock_obj).get_high();
+	if ((*parent_cont).balance >= high) {
+		(*parent_cont).stock_quant++;
+		(*parent_cont).balance -= high;
+		return high;
 	}
+	return 0;
 }
 buy::buy(gen_container &cont) {
-	parent_cont = cont;
+	parent_cont = &cont;
 }
 buy::~buy() {
+	delete parent_cont;
 }
 double value::execute() {
 	return content;

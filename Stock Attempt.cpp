@@ -45,7 +45,13 @@ int main()
 
 	
 	//cout << fixed << mult.execute() << endl;
-
+	stock a("AMZN");
+	gen_container b(a);
+	buy c(b);
+	b.balance = 500;
+	c.execute();
+	cout << b.balance << endl;
+	cout << b.stock_quant << endl;
 
 	string hi;
 	cin >> hi;
