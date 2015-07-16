@@ -15,7 +15,9 @@ public:
 };
 class stock {
 public:
+	stock() {};
 	stock(string symbol);
+
 	int length;
 	void next_day();
 	tm get_date();

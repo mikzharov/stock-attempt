@@ -12,13 +12,10 @@
 #include <assert.h>
 using namespace std;
 static size_t write_data(char *contents, size_t size, size_t nmemb, string &userp) {
-	
 	for (unsigned int c = 0; c < size * nmemb; c++)
 	{
 		userp.push_back(contents[c]);
-		
 	}
-
 	return size * nmemb;
 }
 tm string_to_date(const string &date) {
@@ -28,10 +25,8 @@ tm string_to_date(const string &date) {
 	time.tm_hour = 0;
 	time.tm_min = 0;
 	time.tm_sec = 0;
-	
 	return time;
 }
-
 quote::~quote() {
 	if(date != nullptr)
 	delete[] date;
@@ -48,8 +43,6 @@ quote::~quote() {
 	if (adjusted != nullptr)
 	delete[] adjusted;
 }
-
-
 vector<string> stock::initialize() {
 	CURL *curl;
 	CURLcode res;

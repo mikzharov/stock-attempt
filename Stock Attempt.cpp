@@ -15,6 +15,8 @@
 #include <chrono>
 
 #include <cstdlib>
+
+#include "genetic.h"
 #include "stock.h"
 using namespace std;
 
@@ -23,7 +25,7 @@ using namespace std;
 
 int main()
 {
-	tm temp;
+	/*tm temp;
 	cout << RAND_MAX;
 
 
@@ -39,8 +41,10 @@ int main()
 	}
 	catch (exception e) {
 		cout << e.what();
-	}
+	}*/
+
 	
+	//cout << fixed << mult.execute() << endl;
 
 
 	string hi;
