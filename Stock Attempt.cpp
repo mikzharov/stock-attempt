@@ -18,11 +18,19 @@
 
 #include "genetic.h"
 #include "stock.h"
+
+#include <random>
 using namespace std;
 
 
 
+int random_in_range1(int min, int max) {
+	std::random_device rd;     // only used once to initialise (seed) engine
+	std::mt19937 rng(rd());    // random-number engine used (Mersenne-Twister in this case)
+	std::uniform_int_distribution<int> uni(min, max); // guaranteed unbiased
 
+	return uni(rng);
+}
 int main()
 {
 	/*tm temp;
@@ -42,17 +50,11 @@ int main()
 	catch (exception e) {
 		cout << e.what();
 	}*/
-
-	
-	//cout << fixed << mult.execute() << endl;
 	stock a("AMZN");
-	gen_container b(a);
-	buy c(b);
-	b.balance = 500;
-	c.execute();
-	cout << b.balance << endl;
-	cout << b.stock_quant << endl;
-
+	cout << a.get_adjusted() << endl;
+	a.next_day();
+	cout << a.get_adjusted() << endl;
+	cout << a.get_adjusted(1) << endl;
 	string hi;
 	cin >> hi;
 	return 0;

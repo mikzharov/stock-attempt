@@ -4,39 +4,92 @@
 #include <random>
 #include <string>
 #include "stock.h"
+
+enum node_type { comparison = 500};
 int random_in_range(int min, int max) {
 	std::random_device rd;     // only used once to initialise (seed) engine
 	std::mt19937 rng(rd());    // random-number engine used (Mersenne-Twister in this case)
 	std::uniform_int_distribution<int> uni(min, max); // guaranteed unbiased
 
 	return uni(rng);
-
 }
 
 // if arity is -1 then any object will be returned
 node * return_rand_func(gen_container &cont, int level, int arity = -1) {
-	if (level <= 0) return new value();
-	switch(arity){
-	case -1:
-		int decision;
-		decision = random_in_range(0, 4);
-		if (decision == 0) {
+	if (level <= 0) arity = 0;
+	switch (arity) {
+	case -1://default random arity switch
+		
+		switch(random_in_range(0, 19)){
+		case 0:
 			return new multiply(cont, level);
-		} else if (decision == 1) {
+		case 1:
 			return new value();
-		} else if (decision == 2) {
+		case 2:
 			return new subtract(cont, level);
-		} else if (decision == 3) {
+		case 3:
 			return new divide(cont, level);
-		} else if (decision == 4) {
+		case 4:
 			return new add(cont, level);
+		case 5:
+			return new buy(cont);
+		case 6:
+			return new sell(cont);
+		case 7:
+			return new open(cont);
+		case 8:
+			return new high(cont);
+		case 9:
+			return new low(cont);
+		case 10:
+			return new close(cont);
+		case 11:
+			return new volume(cont);
+		case 12:
+			return new adjusted(cont);
+		case 13:
+			return new balance(cont);
+		case 14:
+			return new decision(cont, level);
+		case 15:
+			return new greater_than(cont, level);
+		case 16:
+			return new less_than(cont, level);
+		case 17:
+			return new less_than_equal(cont, level);
+		case 18:
+			return new greater_than_equal(cont, level);
+		case 19:
+			return new equal_node(cont, level);
 		}
 		break;
-	case 0:
-		return new value();
+	case 0: // artity of 0 ( 0 arguments )
 
-	case 2:
-		switch (random_in_range(0, 3)) {
+		switch( random_in_range(0, 9)){
+		case 0:
+			return new value();
+		case 1:
+			return new buy(cont);
+		case 2:
+			return new sell(cont);
+		case 3:
+			return new open(cont);
+		case 4:
+			return new high(cont);
+		case 5:
+			return new low(cont);
+		case 6:
+			return new close(cont);
+		case 7:
+			return new volume(cont);
+		case 8:
+			return new adjusted(cont);
+		case 9:
+			return new balance(cont);
+		}
+		break;
+	case 2:// 2 arguments
+		switch (random_in_range(0, 8)) {
 		case 0:
 			return new multiply(cont, level);
 		case 1: 
@@ -45,8 +98,33 @@ node * return_rand_func(gen_container &cont, int level, int arity = -1) {
 			return new add(cont, level);
 		case 3: 
 			return new subtract(cont, level);
+		case 4:
+			return new greater_than(cont, level);
+		case 5:
+			return new less_than(cont, level);
+		case 6:
+			return new greater_than_equal(cont, level);
+		case 7:
+			return new less_than_equal(cont, level);
+		case 8:
+			return new equal_node(cont, level);
 		}
-		
+		break;
+	case 4:// 4 arguments
+		return new decision(cont, level);
+	case comparison://only returns comparaison operator
+		switch (random_in_range(0, 4)) {
+		case 0:
+			return new greater_than(cont, level);
+		case 1:
+			return new greater_than_equal(cont, level);
+		case 2:
+			return new equal_node(cont, level);
+		case 3:
+			return new less_than(cont, level);
+		case 4:
+			return new less_than_equal(cont, level);
+		}
 	}
 	throw std::exception("No arity: " + arity);
 }
@@ -61,6 +139,8 @@ multiply::multiply(gen_container &cont, int level) {
 	right = return_rand_func(cont, level - 1);
 }
 multiply::~multiply() {
+	(*right).destroy();
+	(*left).destroy();
 	delete right;
 	delete left;
 	delete parent_cont;
@@ -76,9 +156,12 @@ divide::divide(gen_container &cont, int level) {
 	right = return_rand_func(cont, level - 1);
 }
 divide::~divide() {
+	(*right).destroy();
+	(*left).destroy();
 	delete right;
-	delete parent_cont;
 	delete left;
+	delete parent_cont;
+
 }
 double add::execute() {
 	return (*right).execute() + (*left).execute();
@@ -88,9 +171,12 @@ add::add(gen_container &cont, int level) {
 	right = return_rand_func(cont, level - 1);
 }
 add::~add() {
+	(*right).destroy();
+	(*left).destroy();
+	delete left;
 	delete right;
 	delete parent_cont;
-	delete left;
+	
 }
 double subtract::execute() {
 	return (*right).execute() - (*left).execute();
@@ -100,6 +186,8 @@ subtract::subtract(gen_container &cont, int level) {
 	right = return_rand_func(cont, level - 1);
 }
 subtract::~subtract() {
+	(*right).destroy();
+	(*left).destroy();
 	delete right;
 	delete left;
 	delete parent_cont;
@@ -119,12 +207,201 @@ buy::buy(gen_container &cont) {
 buy::~buy() {
 	delete parent_cont;
 }
+double sell::execute() {
+	double low = (*(*parent_cont).stock_obj).get_low();
+	if ((*parent_cont).stock_quant > 0) {
+		(*parent_cont).stock_quant--;
+		(*parent_cont).balance += low;
+		return low;
+	}
+	return 0;
+}
+sell::sell(gen_container &cont) {
+	parent_cont = &cont;
+}
+sell::~sell() {
+	delete parent_cont;
+}
+double open::execute() {
+	return (*(*parent_cont).stock_obj).get_open();
+}
+open::open(gen_container &cont) {
+	parent_cont = &cont;
+}
+open::~open() {
+	delete parent_cont;
+}
+double high::execute() {
+	return (*(*parent_cont).stock_obj).get_high();
+}
+high::high(gen_container &cont) {
+	parent_cont = &cont;
+}
+high::~high() {
+	delete parent_cont;
+}
+double low::execute() {
+	return (*(*parent_cont).stock_obj).get_low();
+}
+low::low(gen_container &cont) {
+	parent_cont = &cont;
+}
+low::~low() {
+	delete parent_cont;
+}
+double close::execute() {
+	return (*(*parent_cont).stock_obj).get_close();
+}
+close::close(gen_container &cont) {
+	parent_cont = &cont;
+}
+close::~close() {
+	delete parent_cont;
+}
+double volume::execute() {
+	return (*(*parent_cont).stock_obj).get_volume();
+}
+volume::volume(gen_container &cont) {
+	parent_cont = &cont;
+}
+volume::~volume() {
+	delete parent_cont;
+}
+double adjusted::execute() {
+	return (*(*parent_cont).stock_obj).get_adjusted();
+}
+adjusted::adjusted(gen_container &cont) {
+	parent_cont = &cont;
+}
+adjusted::~adjusted() {
+	delete parent_cont;
+}
+double balance::execute() {
+	return (*parent_cont).get_balance();
+}
+balance::balance(gen_container &cont) {
+	parent_cont = &cont;
+}
+balance::~balance() {
+	delete parent_cont;
+}
+double decision::execute() {
+	if ((*comp).execute() == 1) {
+		return (*right_output).execute();
+	}
+	return (*left_output).execute();
+}
+decision::decision(gen_container &cont, int level) {
+	comp = return_rand_func(cont, level - 1, comparison);
+	right_output = return_rand_func(cont, level - 1);
+	left_output = return_rand_func(cont, level - 1);
+	parent_cont = &cont;
+}
+decision::~decision() {
+	(*comp).destroy();
+	(*right_output).destroy();
+	(*left_output).destroy();
+	delete comp;
+	delete right_output;
+	delete left_output;
+	delete parent_cont;
+}
+double greater_than::execute() {
+	if ((*right).execute() > (*left).execute()) {
+		return 1;
+	}
+	return 0;
+}
+greater_than::greater_than(gen_container &cont, int level) {
+	right = return_rand_func(cont, level - 1);
+	left = return_rand_func(cont, level - 1);
+	parent_cont = &cont;
+}
+greater_than::~greater_than() {
+	(*right).destroy();
+	(*left).destroy();
+	delete right;
+	delete left;
+	delete parent_cont;
+}
+double greater_than_equal::execute() {
+	if ((*right).execute() >= (*left).execute()) {
+		return 1;
+	}
+	return 0;
+}
+greater_than_equal::greater_than_equal(gen_container &cont, int level) {
+	right = return_rand_func(cont, level - 1);
+	left = return_rand_func(cont, level - 1);
+	parent_cont = &cont;
+}
+greater_than_equal::~greater_than_equal() {
+	(*right).destroy();
+	(*left).destroy();
+	delete right;
+	delete left;
+	delete parent_cont;
+}
+double less_than::execute() {
+	if ((*right).execute() < (*left).execute()) {
+		return 1;
+	}
+	return 0;
+}
+less_than::less_than(gen_container &cont, int level) {
+	right = return_rand_func(cont, level - 1);
+	left = return_rand_func(cont, level - 1);
+	parent_cont = &cont;
+}
+less_than::~less_than() {
+	(*right).destroy();
+	(*left).destroy();
+	delete right;
+	delete left;
+	delete parent_cont;
+}
+double less_than_equal::execute() {
+	if ((*right).execute() <= (*left).execute()) {
+		return 1;
+	}
+	return 0;
+}
+less_than_equal::less_than_equal(gen_container &cont, int level) {
+	right = return_rand_func(cont, level - 1);
+	left = return_rand_func(cont, level - 1);
+	parent_cont = &cont;
+}
+less_than_equal::~less_than_equal() {
+	(*right).destroy();
+	(*left).destroy();
+	delete right;
+	delete left;
+	delete parent_cont;
+}
+double equal_node::execute() {
+	if ((*right).execute() == (*left).execute()) {
+		return 1;
+	}
+	return 0;
+}
+equal_node::equal_node(gen_container &cont, int level) {
+	right = return_rand_func(cont, level - 1);
+	left = return_rand_func(cont, level - 1);
+	parent_cont = &cont;
+}
+equal_node::~equal_node() {
+	(*right).destroy();
+	(*left).destroy();
+	delete right;
+	delete left;
+	delete parent_cont;
+}
 double value::execute() {
 	return content;
 }
 value::value() {
 	double lower_bound = 0;
-	double upper_bound = 10000;
+	double upper_bound = 10000;//I don't know why I chose this value
 	std::uniform_real_distribution<double> unif(lower_bound, upper_bound);
 	std::default_random_engine re;
 	content = unif(re);
