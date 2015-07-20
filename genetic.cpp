@@ -61,6 +61,18 @@ node * return_rand_func(gen_container &cont, int level, int arity = -1) {
 			return new greater_than_equal(cont, level);
 		case 19:
 			return new equal_node(cont, level);
+		case 20:
+			return new open(cont, level);
+		case 21:
+			return new high(cont, level);
+		case 22:
+			return new low(cont, level);
+		case 23:
+			return new close(cont, level);
+		case 24:
+			return new volume(cont, level);
+		case 25:
+			return new adjusted(cont, level);
 		}
 		break;
 	case 0: // artity of 0 ( 0 arguments )
@@ -88,6 +100,21 @@ node * return_rand_func(gen_container &cont, int level, int arity = -1) {
 			return new balance(cont);
 		}
 		break;
+	case 1:
+		switch(random_in_range(0, 5)){
+		case 0:
+			return new open(cont, level);
+		case 1:
+			return new high(cont, level);
+		case 2:
+			return new low(cont, level);
+		case 3:
+			return new close(cont, level);
+		case 4:
+			return new volume(cont, level);
+		case 5:
+			return new adjusted(cont, level);
+		}
 	case 2:// 2 arguments
 		switch (random_in_range(0, 8)) {
 		case 0:
@@ -223,57 +250,108 @@ sell::~sell() {
 	delete parent_cont;
 }
 double open::execute() {
-	return (*(*parent_cont).stock_obj).get_open();
+	int day = 0;
+	if (past != nullptr) {
+		day = (int)(*past).execute();
+	}
+	return (*(*parent_cont).stock_obj).get_open(day);
 }
-open::open(gen_container &cont) {
+open::open(gen_container &cont, int level) {
 	parent_cont = &cont;
+	if (level != 1) {
+		past = return_rand_func(cont, level - 1);
+	}
 }
 open::~open() {
+	(*past).destroy();
+	delete past;
 	delete parent_cont;
+	
 }
 double high::execute() {
-	return (*(*parent_cont).stock_obj).get_high();
+	int day = 0;
+	if (past != nullptr) {
+		day = (int)(*past).execute();
+	}
+	return (*(*parent_cont).stock_obj).get_high(day);
 }
-high::high(gen_container &cont) {
+high::high(gen_container &cont, int level) {
 	parent_cont = &cont;
+	if (level != 1) {
+		past = return_rand_func(cont, level - 1);
+	}
 }
 high::~high() {
+	(*past).destroy();
+	delete past;
 	delete parent_cont;
 }
 double low::execute() {
-	return (*(*parent_cont).stock_obj).get_low();
+	int day = 0;
+	if (past != nullptr) {
+		day = (int)(*past).execute();
+	}
+	return (*(*parent_cont).stock_obj).get_low(day);
 }
-low::low(gen_container &cont) {
+low::low(gen_container &cont, int level) {
 	parent_cont = &cont;
+	if (level != 1) {
+		past = return_rand_func(cont, level - 1);
+	}
 }
 low::~low() {
+	(*past).destroy();
+	delete past;
 	delete parent_cont;
 }
 double close::execute() {
 	return (*(*parent_cont).stock_obj).get_close();
 }
-close::close(gen_container &cont) {
+close::close(gen_container &cont, int level) {
 	parent_cont = &cont;
+	if (level != 1) {
+		past = return_rand_func(cont, level - 1);
+	}
 }
 close::~close() {
+	(*past).destroy();
+	delete past;
 	delete parent_cont;
 }
 double volume::execute() {
-	return (*(*parent_cont).stock_obj).get_volume();
+	int day = 0;
+	if (past != nullptr) {
+		day = (int)(*past).execute();
+	}
+	return (*(*parent_cont).stock_obj).get_volume(day);
 }
-volume::volume(gen_container &cont) {
+volume::volume(gen_container &cont, int level) {
 	parent_cont = &cont;
+	if (level != 1) {
+		past = return_rand_func(cont, level - 1);
+	}
 }
 volume::~volume() {
+	(*past).destroy();
+	delete past;
 	delete parent_cont;
 }
 double adjusted::execute() {
-	return (*(*parent_cont).stock_obj).get_adjusted();
+	int day = 0;
+	if (past != nullptr) {
+		day = (int)(*past).execute();
+	}
+	return (*(*parent_cont).stock_obj).get_adjusted(day);
 }
-adjusted::adjusted(gen_container &cont) {
+adjusted::adjusted(gen_container &cont, int level) {
 	parent_cont = &cont;
+	if (level != 1) {
+		past = return_rand_func(cont, level - 1);
+	}
 }
 adjusted::~adjusted() {
+	(*past).destroy();
+	delete past;
 	delete parent_cont;
 }
 double balance::execute() {

@@ -6,7 +6,7 @@
 class node {
 public:
 	virtual double execute() { std::cout << "Wrong execute call"; return 0; };
-	virtual void destroy() {};
+	virtual void destroy() { std::cout << "Wrong destroy call"; };
 };
 class gen_container {
 public:
@@ -21,6 +21,7 @@ public:
 };
 class multiply : public node {
 public:
+	multiply() {}; //default constructor so pointers can be placed manually
 	node *left;
 	node *right;
 	double execute();
@@ -32,6 +33,7 @@ public:
 };
 class divide : public node {
 public:
+	divide() {}; //default constructor so pointers can be placed manually
 	gen_container * parent_cont;
 	node *left;
 	node *right;
@@ -42,6 +44,7 @@ public:
 };
 class add : public node {
 public:
+	add() {}; //default constructor so pointers can be placed manually
 	gen_container * parent_cont;
 	node *left;
 	node *right;
@@ -52,6 +55,7 @@ public:
 };
 class subtract : public node {
 public:
+	subtract() {}; //default constructor so pointers can be placed manually
 	gen_container * parent_cont;
 	node *left;
 	node *right;
@@ -62,6 +66,7 @@ public:
 };
 class buy : public node {
 public:
+	buy() {}; //default constructor so pointers can be placed manually
 	gen_container * parent_cont;
 	double execute();
 	~buy();
@@ -70,6 +75,7 @@ public:
 };
 class sell : public node {
 public:
+	sell() {}; //default constructor so pointers can be placed manually
 	gen_container * parent_cont;
 	double execute();
 	~sell();
@@ -78,54 +84,67 @@ public:
 };
 class open : public node {
 public:
+	node * past;
+	open() {}; //default constructor so pointers can be placed manually
 	gen_container * parent_cont;
 	double execute();
 	~open();
 	void destroy() { this->~open(); };
-	open(gen_container &cont);
+	open(gen_container &cont, int level = 1);
 };
 class high : public node {
 public:
+	high() {}; //default constructor so pointers can be placed manually
+	node * past;
 	gen_container * parent_cont;
 	double execute();
 	~high();
 	void destroy() { this->~high(); };
-	high(gen_container &cont);
+	high(gen_container &cont, int level = 1);
 };
 class low : public node {
 public:
+	low() {}; //default constructor so pointers can be placed manually
+	node * past;
 	gen_container * parent_cont;
 	double execute();
 	~low();
 	void destroy() { this->~low(); };
-	low(gen_container &cont);
+	low(gen_container &cont, int level = 1);
 };
 class close : public node {
 public:
+	close() {}; //default constructor so pointers can be placed manually
+	node * past;
 	gen_container * parent_cont;
 	double execute();
 	~close();
 	void destroy() { this->~close(); };
-	close(gen_container &cont);
+	close(gen_container &cont, int level = 1);
 };
 class volume : public node {
 public:
+	volume() {}; //default constructor so pointers can be placed manually
+	node * past;
 	gen_container * parent_cont;
 	double execute();
 	~volume();
 	void destroy() { this->~volume(); };
-	volume(gen_container &cont);
+	volume(gen_container &cont, int level = 1);
 };
 class adjusted : public node {
 public:
+	adjusted() {}; //default constructor so pointers can be placed manually
+	node * past;
 	gen_container * parent_cont;
 	double execute();
 	~adjusted();
 	void destroy() { this->~adjusted(); };
-	adjusted(gen_container &cont);
+	adjusted(gen_container &cont, int level = 1);
 };
 class balance : public node {
 public:
+	balance() {}; //default constructor so pointers can be placed manually
 	gen_container * parent_cont;
 	double execute();
 	~balance();
@@ -134,6 +153,7 @@ public:
 };
 class decision : public node {
 public:
+	decision() {}; //default constructor so pointers can be placed manually
 	node * comp;
 	node * right_output, *left_output;
 	gen_container * parent_cont;
@@ -144,6 +164,7 @@ public:
 };
 class greater_than : public node {
 public:
+	greater_than() {}; //default constructor so pointers can be placed manually
 	node * right, *left;
 	gen_container * parent_cont;
 	double execute();
@@ -153,6 +174,7 @@ public:
 };
 class greater_than_equal : public node {
 public:
+	greater_than_equal() {}; //default constructor so pointers can be placed manually
 	node * right, *left;
 	gen_container * parent_cont;
 	double execute();
@@ -162,6 +184,7 @@ public:
 };
 class less_than : public node {
 public:
+	less_than() {}; //default constructor so pointers can be placed manually
 	node * right, *left;
 	gen_container * parent_cont;
 	double execute();
@@ -171,6 +194,7 @@ public:
 };
 class less_than_equal : public node {
 public:
+	less_than_equal() {}; //default constructor so pointers can be placed manually
 	node * right, *left;
 	gen_container * parent_cont;
 	double execute();
@@ -181,6 +205,7 @@ public:
 //originally named just "equal" but renamed after conflicts with other things named "equal"
 class equal_node : public node {
 public:
+	equal_node() {}; //default constructor so pointers can be placed manually
 	node * right, *left;
 	gen_container * parent_cont;
 	double execute();
