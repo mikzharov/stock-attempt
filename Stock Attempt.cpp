@@ -51,10 +51,10 @@ int main()
 		cout << e.what();
 	}*/
 	stock a("AMZN");
-	cout << a.get_adjusted() << endl;
-	a.next_day();
-	cout << a.get_adjusted() << endl;
-	cout << a.get_adjusted(1) << endl;
+	gen_container b(a);
+	add c(b, 2);
+	b.node = &c;
+	cout << b.node->execute();
 	string hi;
 	cin >> hi;
 	return 0;

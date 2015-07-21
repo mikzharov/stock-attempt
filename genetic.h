@@ -5,13 +5,14 @@
 
 class node {
 public:
-	virtual double execute() { std::cout << "Wrong execute call"; return 0; };
-	virtual void destroy() { std::cout << "Wrong destroy call"; };
+	virtual double execute() { std::cout << "Wrong execute call" << endl; return 0; };
+	virtual void destroy() { std::cout << "Wrong destroy call" << endl; };
+	virtual ~node() { std::cout << "Wrong destructor call" << endl; };
 };
 class gen_container {
 public:
 	double get_balance() { return balance; }
-	node node;
+	node * node;
 	double balance = 0;
 	int stock_quant = 0;
 	stock * stock_obj;
@@ -218,5 +219,6 @@ public:
 	double content;
 	double execute();
 	void destroy() {/*does nothing*/};
+	~value() {};
 	value();
 };

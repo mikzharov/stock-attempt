@@ -159,71 +159,67 @@ gen_container::gen_container(string stock_name) {
 	stock_obj = new stock (stock_name);
 }
 double multiply::execute() {
-	return (*right).execute() * (*left).execute();
+	return right->execute() * left->execute();
 }
 multiply::multiply(gen_container &cont, int level) {
 	left = return_rand_func(cont, level - 1);
 	right = return_rand_func(cont, level - 1);
 }
 multiply::~multiply() {
-	(*right).destroy();
-	(*left).destroy();
+	right->destroy();
+	left->destroy();
 	delete right;
 	delete left;
-	delete parent_cont;
 }
 double divide::execute() {
-	if ((*left).execute()==0) {
+	if (left->execute()==0) {
 		return 1;
 	}
-	return (*right).execute() / (*left).execute();
+	return right->execute() / left->execute();
 }
 divide::divide(gen_container &cont, int level) {
 	left = return_rand_func(cont, level - 1);
 	right = return_rand_func(cont, level - 1);
 }
 divide::~divide() {
-	(*right).destroy();
-	(*left).destroy();
+	right->destroy();
+	left->destroy();
 	delete right;
 	delete left;
 	delete parent_cont;
 
 }
 double add::execute() {
-	return (*right).execute() + (*left).execute();
+	return right->execute() + left->execute();
 }
 add::add(gen_container &cont, int level) {
 	left = return_rand_func(cont, level - 1);
 	right = return_rand_func(cont, level - 1);
 }
 add::~add() {
-	(*right).destroy();
-	(*left).destroy();
+	right->destroy();
+	left->destroy();
 	delete left;
 	delete right;
-	delete parent_cont;
-	
 }
 double subtract::execute() {
-	return (*right).execute() - (*left).execute();
+	return right->execute() - left->execute();
 }
 subtract::subtract(gen_container &cont, int level) {
 	left = return_rand_func(cont, level - 1);
 	right = return_rand_func(cont, level - 1);
 }
 subtract::~subtract() {
-	(*right).destroy();
-	(*left).destroy();
+	right->destroy();
+	left->destroy();
 	delete right;
 	delete left;
-	delete parent_cont;
 }
 double buy::execute() {
-	double high = (*(*parent_cont).stock_obj).get_high();
-	if ((*parent_cont).balance >= high) {
-		(*parent_cont).stock_quant++;
-		(*parent_cont).balance -= high;
+	double high = parent_cont->stock_obj->get_high();
+	if (parent_cont->balance >= high) {
+		parent_cont->stock_quant++;
+		parent_cont->balance -= high;
 		return high;
 	}
 	return 0;
@@ -232,13 +228,12 @@ buy::buy(gen_container &cont) {
 	parent_cont = &cont;
 }
 buy::~buy() {
-	delete parent_cont;
 }
 double sell::execute() {
-	double low = (*(*parent_cont).stock_obj).get_low();
-	if ((*parent_cont).stock_quant > 0) {
-		(*parent_cont).stock_quant--;
-		(*parent_cont).balance += low;
+	double low = parent_cont->stock_obj->get_low();
+	if (parent_cont->stock_quant > 0) {
+		parent_cont->stock_quant--;
+		parent_cont->balance += low;
 		return low;
 	}
 	return 0;
@@ -247,14 +242,13 @@ sell::sell(gen_container &cont) {
 	parent_cont = &cont;
 }
 sell::~sell() {
-	delete parent_cont;
 }
 double open::execute() {
 	int day = 0;
 	if (past != nullptr) {
-		day = (int)(*past).execute();
+		day = (int)past->execute();
 	}
-	return (*(*parent_cont).stock_obj).get_open(day);
+	return parent_cont->stock_obj->get_open(day);
 }
 open::open(gen_container &cont, int level) {
 	parent_cont = &cont;
@@ -263,17 +257,17 @@ open::open(gen_container &cont, int level) {
 	}
 }
 open::~open() {
-	(*past).destroy();
+	if(past != nullptr){
+		past->destroy();
+	}
 	delete past;
-	delete parent_cont;
-	
 }
 double high::execute() {
 	int day = 0;
 	if (past != nullptr) {
-		day = (int)(*past).execute();
+		day = (int)past->execute();
 	}
-	return (*(*parent_cont).stock_obj).get_high(day);
+	return parent_cont->stock_obj->get_high(day);
 }
 high::high(gen_container &cont, int level) {
 	parent_cont = &cont;
@@ -282,16 +276,16 @@ high::high(gen_container &cont, int level) {
 	}
 }
 high::~high() {
-	(*past).destroy();
+	if(past!=nullptr)
+	past->destroy();
 	delete past;
-	delete parent_cont;
 }
 double low::execute() {
 	int day = 0;
 	if (past != nullptr) {
-		day = (int)(*past).execute();
+		day = (int)past->execute();
 	}
-	return (*(*parent_cont).stock_obj).get_low(day);
+	return parent_cont->stock_obj->get_low(day);
 }
 low::low(gen_container &cont, int level) {
 	parent_cont = &cont;
@@ -300,12 +294,14 @@ low::low(gen_container &cont, int level) {
 	}
 }
 low::~low() {
-	(*past).destroy();
+	if(past!=nullptr){
+		past->destroy();
+	}
 	delete past;
-	delete parent_cont;
+
 }
 double close::execute() {
-	return (*(*parent_cont).stock_obj).get_close();
+	return parent_cont->stock_obj->get_close();
 }
 close::close(gen_container &cont, int level) {
 	parent_cont = &cont;
@@ -314,16 +310,17 @@ close::close(gen_container &cont, int level) {
 	}
 }
 close::~close() {
-	(*past).destroy();
+	if(past != nullptr){
+		past->destroy();
+	}
 	delete past;
-	delete parent_cont;
 }
 double volume::execute() {
 	int day = 0;
 	if (past != nullptr) {
-		day = (int)(*past).execute();
+		day = (int)past->execute();
 	}
-	return (*(*parent_cont).stock_obj).get_volume(day);
+	return parent_cont->stock_obj->get_volume(day);
 }
 volume::volume(gen_container &cont, int level) {
 	parent_cont = &cont;
@@ -332,16 +329,17 @@ volume::volume(gen_container &cont, int level) {
 	}
 }
 volume::~volume() {
-	(*past).destroy();
+	if(past!=nullptr){
+		past->destroy();
+	}
 	delete past;
-	delete parent_cont;
 }
 double adjusted::execute() {
 	int day = 0;
 	if (past != nullptr) {
-		day = (int)(*past).execute();
+		day = (int)past->execute();
 	}
-	return (*(*parent_cont).stock_obj).get_adjusted(day);
+	return parent_cont->stock_obj->get_adjusted(day);
 }
 adjusted::adjusted(gen_container &cont, int level) {
 	parent_cont = &cont;
@@ -350,24 +348,24 @@ adjusted::adjusted(gen_container &cont, int level) {
 	}
 }
 adjusted::~adjusted() {
-	(*past).destroy();
+	if(past!=nullptr){
+		past->destroy();
+	}
 	delete past;
-	delete parent_cont;
 }
 double balance::execute() {
-	return (*parent_cont).get_balance();
+	return parent_cont->get_balance();
 }
 balance::balance(gen_container &cont) {
 	parent_cont = &cont;
 }
 balance::~balance() {
-	delete parent_cont;
 }
 double decision::execute() {
-	if ((*comp).execute() == 1) {
-		return (*right_output).execute();
+	if (comp->execute() == 1) {
+		return right_output->execute();
 	}
-	return (*left_output).execute();
+	return left_output->execute();
 }
 decision::decision(gen_container &cont, int level) {
 	comp = return_rand_func(cont, level - 1, comparison);
@@ -376,16 +374,15 @@ decision::decision(gen_container &cont, int level) {
 	parent_cont = &cont;
 }
 decision::~decision() {
-	(*comp).destroy();
-	(*right_output).destroy();
-	(*left_output).destroy();
+	comp->destroy();
+	right_output->destroy();
+	left_output->destroy();
 	delete comp;
 	delete right_output;
 	delete left_output;
-	delete parent_cont;
 }
 double greater_than::execute() {
-	if ((*right).execute() > (*left).execute()) {
+	if (right->execute() > left->execute()) {
 		return 1;
 	}
 	return 0;
@@ -396,14 +393,13 @@ greater_than::greater_than(gen_container &cont, int level) {
 	parent_cont = &cont;
 }
 greater_than::~greater_than() {
-	(*right).destroy();
-	(*left).destroy();
+	right->destroy();
+	left->destroy();
 	delete right;
 	delete left;
-	delete parent_cont;
 }
 double greater_than_equal::execute() {
-	if ((*right).execute() >= (*left).execute()) {
+	if (right->execute() >= left->execute()) {
 		return 1;
 	}
 	return 0;
@@ -414,14 +410,13 @@ greater_than_equal::greater_than_equal(gen_container &cont, int level) {
 	parent_cont = &cont;
 }
 greater_than_equal::~greater_than_equal() {
-	(*right).destroy();
-	(*left).destroy();
+	right->destroy();
+	left->destroy();
 	delete right;
 	delete left;
-	delete parent_cont;
 }
 double less_than::execute() {
-	if ((*right).execute() < (*left).execute()) {
+	if (right->execute() < left->execute()) {
 		return 1;
 	}
 	return 0;
@@ -432,14 +427,13 @@ less_than::less_than(gen_container &cont, int level) {
 	parent_cont = &cont;
 }
 less_than::~less_than() {
-	(*right).destroy();
-	(*left).destroy();
+	right->destroy();
+	left->destroy();
 	delete right;
 	delete left;
-	delete parent_cont;
 }
 double less_than_equal::execute() {
-	if ((*right).execute() <= (*left).execute()) {
+	if (right->execute() <= left->execute()) {
 		return 1;
 	}
 	return 0;
@@ -450,14 +444,13 @@ less_than_equal::less_than_equal(gen_container &cont, int level) {
 	parent_cont = &cont;
 }
 less_than_equal::~less_than_equal() {
-	(*right).destroy();
-	(*left).destroy();
+	right->destroy();
+	left->destroy();
 	delete right;
 	delete left;
-	delete parent_cont;
 }
 double equal_node::execute() {
-	if ((*right).execute() == (*left).execute()) {
+	if (right->execute() == left->execute()) {
 		return 1;
 	}
 	return 0;
@@ -468,11 +461,10 @@ equal_node::equal_node(gen_container &cont, int level) {
 	parent_cont = &cont;
 }
 equal_node::~equal_node() {
-	(*right).destroy();
-	(*left).destroy();
+	right->destroy();
+	left->destroy();
 	delete right;
 	delete left;
-	delete parent_cont;
 }
 double value::execute() {
 	return content;
