@@ -8,6 +8,7 @@ public:
 	virtual double execute() { std::cout << "Wrong execute call" << endl; return 0; };
 	virtual void destroy() { std::cout << "Wrong destroy call" << endl; };
 	virtual ~node() { std::cout << "Wrong destructor call" << endl; };
+	virtual int get_arity() { return -2; };
 };
 class gen_container {
 public:
@@ -19,9 +20,13 @@ public:
 	gen_container() {}; 
 	gen_container(stock &s) { stock_obj = &s; };
 	gen_container(string stock_name);
+	bool operator < (const gen_container& con) const {
+		return (balance + (stock_quant * stock_obj->get_low())) < (con.balance + (con.stock_quant * con.stock_obj->get_low()));
+	}
 };
 class multiply : public node {
 public:
+	virtual int get_arity() { return 2; };
 	multiply() {}; //default constructor so pointers can be placed manually
 	node *left;
 	node *right;
@@ -34,6 +39,7 @@ public:
 };
 class divide : public node {
 public:
+	virtual int get_arity() { return 2; };
 	divide() {}; //default constructor so pointers can be placed manually
 	gen_container * parent_cont;
 	node *left;
@@ -45,6 +51,7 @@ public:
 };
 class add : public node {
 public:
+	virtual int get_arity() { return 2; };
 	add() {}; //default constructor so pointers can be placed manually
 	gen_container * parent_cont;
 	node *left;
@@ -56,6 +63,7 @@ public:
 };
 class subtract : public node {
 public:
+	virtual int get_arity() { return 2; };
 	subtract() {}; //default constructor so pointers can be placed manually
 	gen_container * parent_cont;
 	node *left;
@@ -67,24 +75,29 @@ public:
 };
 class buy : public node {
 public:
+	node * amount;
+	virtual int get_arity() { return 1; };
 	buy() {}; //default constructor so pointers can be placed manually
 	gen_container * parent_cont;
 	double execute();
 	~buy();
 	void destroy() { this->~buy(); };
-	buy(gen_container &cont);
+	buy(gen_container &cont, int level = 1);
 };
 class sell : public node {
 public:
+	node * amount;
+	virtual int get_arity() { return 1; };
 	sell() {}; //default constructor so pointers can be placed manually
 	gen_container * parent_cont;
 	double execute();
 	~sell();
 	void destroy() { this->~sell(); };
-	sell(gen_container &cont);
+	sell(gen_container &cont, int level = 1);
 };
 class open : public node {
 public:
+	virtual int get_arity() { return (int)(past != nullptr); };
 	node * past;
 	open() {}; //default constructor so pointers can be placed manually
 	gen_container * parent_cont;
@@ -95,6 +108,7 @@ public:
 };
 class high : public node {
 public:
+	virtual int get_arity() { return (int)(past != nullptr); };
 	high() {}; //default constructor so pointers can be placed manually
 	node * past;
 	gen_container * parent_cont;
@@ -105,6 +119,7 @@ public:
 };
 class low : public node {
 public:
+	virtual int get_arity() { return (int)(past != nullptr); };
 	low() {}; //default constructor so pointers can be placed manually
 	node * past;
 	gen_container * parent_cont;
@@ -115,6 +130,7 @@ public:
 };
 class close : public node {
 public:
+	virtual int get_arity() { return (int)(past != nullptr); };
 	close() {}; //default constructor so pointers can be placed manually
 	node * past;
 	gen_container * parent_cont;
@@ -125,6 +141,7 @@ public:
 };
 class volume : public node {
 public:
+	virtual int get_arity() { return (int)(past != nullptr); };
 	volume() {}; //default constructor so pointers can be placed manually
 	node * past;
 	gen_container * parent_cont;
@@ -135,6 +152,7 @@ public:
 };
 class adjusted : public node {
 public:
+	virtual int get_arity() { return (int)(past != nullptr); };
 	adjusted() {}; //default constructor so pointers can be placed manually
 	node * past;
 	gen_container * parent_cont;
@@ -145,6 +163,7 @@ public:
 };
 class balance : public node {
 public:
+	virtual int get_arity() { return 0; };
 	balance() {}; //default constructor so pointers can be placed manually
 	gen_container * parent_cont;
 	double execute();
@@ -154,6 +173,7 @@ public:
 };
 class decision : public node {
 public:
+	virtual int get_arity() { return 3; };
 	decision() {}; //default constructor so pointers can be placed manually
 	node * comp;
 	node * right_output, *left_output;
@@ -165,6 +185,7 @@ public:
 };
 class greater_than : public node {
 public:
+	virtual int get_arity() { return 2; };
 	greater_than() {}; //default constructor so pointers can be placed manually
 	node * right, *left;
 	gen_container * parent_cont;
@@ -175,6 +196,7 @@ public:
 };
 class greater_than_equal : public node {
 public:
+	virtual int get_arity() { return 2; };
 	greater_than_equal() {}; //default constructor so pointers can be placed manually
 	node * right, *left;
 	gen_container * parent_cont;
@@ -185,6 +207,7 @@ public:
 };
 class less_than : public node {
 public:
+	virtual int get_arity() { return 2; };
 	less_than() {}; //default constructor so pointers can be placed manually
 	node * right, *left;
 	gen_container * parent_cont;
@@ -195,6 +218,7 @@ public:
 };
 class less_than_equal : public node {
 public:
+	virtual int get_arity() { return 2; };
 	less_than_equal() {}; //default constructor so pointers can be placed manually
 	node * right, *left;
 	gen_container * parent_cont;
@@ -206,6 +230,7 @@ public:
 //originally named just "equal" but renamed after conflicts with other things named "equal"
 class equal_node : public node {
 public:
+	virtual int get_arity() { return 2; };
 	equal_node() {}; //default constructor so pointers can be placed manually
 	node * right, *left;
 	gen_container * parent_cont;
@@ -216,6 +241,7 @@ public:
 };
 class value : public node {
 public:
+	virtual int get_arity() { return 0; };
 	double content;
 	double execute();
 	void destroy() {/*does nothing*/};

@@ -18,6 +18,9 @@ int random_in_range(int min, int max) {
 node * return_rand_func(gen_container &cont, int level, int arity = -1) {
 	if (level <= 0) arity = 0;
 	switch (arity) {
+	case -2:
+		cout << "Wrong get_arity call!" << endl;
+		break;
 	case -1://default random arity switch
 		
 		switch(random_in_range(0, 19)){
@@ -77,31 +80,27 @@ node * return_rand_func(gen_container &cont, int level, int arity = -1) {
 		break;
 	case 0: // artity of 0 ( 0 arguments )
 
-		switch( random_in_range(0, 9)){
+		switch( random_in_range(0, 7)){
 		case 0:
 			return new value();
 		case 1:
-			return new buy(cont);
-		case 2:
-			return new sell(cont);
-		case 3:
 			return new open(cont);
-		case 4:
+		case 2:
 			return new high(cont);
-		case 5:
+		case 3:
 			return new low(cont);
-		case 6:
+		case 4:
 			return new close(cont);
-		case 7:
+		case 5:
 			return new volume(cont);
-		case 8:
+		case 6:
 			return new adjusted(cont);
-		case 9:
+		case 7:
 			return new balance(cont);
 		}
 		break;
 	case 1:
-		switch(random_in_range(0, 5)){
+		switch(random_in_range(0, 7)){
 		case 0:
 			return new open(cont, level);
 		case 1:
@@ -114,6 +113,10 @@ node * return_rand_func(gen_container &cont, int level, int arity = -1) {
 			return new volume(cont, level);
 		case 5:
 			return new adjusted(cont, level);
+		case 6:
+			return new buy(cont, level);
+		case 7:
+			return new sell(cont, level);
 		}
 	case 2:// 2 arguments
 		switch (random_in_range(0, 8)) {
@@ -137,7 +140,7 @@ node * return_rand_func(gen_container &cont, int level, int arity = -1) {
 			return new equal_node(cont, level);
 		}
 		break;
-	case 4:// 4 arguments
+	case 3:// 3 arguments
 		return new decision(cont, level);
 	case comparison://only returns comparaison operator
 		switch (random_in_range(0, 4)) {
@@ -217,31 +220,42 @@ subtract::~subtract() {
 }
 double buy::execute() {
 	double high = parent_cont->stock_obj->get_high();
-	if (parent_cont->balance >= high) {
-		parent_cont->stock_quant++;
-		parent_cont->balance -= high;
+	int amount_to_buy = (int)amount->execute();
+	if (parent_cont->balance - (amount_to_buy * high) > 0) {
+		parent_cont->stock_quant += amount_to_buy;
+		parent_cont->balance -= high * amount_to_buy;
 		return high;
 	}
-	return 0;
+	int quant = (int)(parent_cont->balance / high);
+	parent_cont->stock_quant -= quant;
+	parent_cont->balance -= quant * high;
+	return high;
 }
-buy::buy(gen_container &cont) {
+buy::buy(gen_container &cont, int level) {
 	parent_cont = &cont;
+	amount = return_rand_func(cont, level - 1);
 }
 buy::~buy() {
+	delete amount;
 }
 double sell::execute() {
 	double low = parent_cont->stock_obj->get_low();
-	if (parent_cont->stock_quant > 0) {
-		parent_cont->stock_quant--;
-		parent_cont->balance += low;
+	int amount_to_sell = (int)amount->execute();
+	if (parent_cont->stock_quant - amount_to_sell > 0) {
+		parent_cont->stock_quant-= amount_to_sell;
+		parent_cont->balance += low * amount_to_sell;
 		return low;
 	}
-	return 0;
+	parent_cont->stock_quant -= parent_cont->stock_quant;
+	parent_cont->balance += low * parent_cont->stock_quant;
+	return low;
 }
-sell::sell(gen_container &cont) {
+sell::sell(gen_container &cont, int level) {
 	parent_cont = &cont;
+	amount = return_rand_func(cont, level - 1);
 }
 sell::~sell() {
+	delete amount;
 }
 double open::execute() {
 	int day = 0;

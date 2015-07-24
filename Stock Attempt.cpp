@@ -50,11 +50,16 @@ int main()
 	catch (exception e) {
 		cout << e.what();
 	}*/
+
+
 	stock a("AMZN");
 	gen_container b(a);
+	b.balance = 100;
 	add c(b, 2);
 	b.node = &c;
 	cout << b.node->execute();
+
+
 	string hi;
 	cin >> hi;
 	return 0;
