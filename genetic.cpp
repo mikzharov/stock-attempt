@@ -15,7 +15,7 @@ int random_in_range(int min, int max) {
 }
 
 // if arity is -1 then any object will be returned
-node * return_rand_func(gen_container &cont, int level, int arity = -1) {
+node * return_rand_func(gen_container * cont, int level, int arity = -1) {
 	if (level <= 0) arity = 0;
 	switch (arity) {
 	case -2:
@@ -164,7 +164,7 @@ gen_container::gen_container(string stock_name) {
 double multiply::execute() {
 	return right->execute() * left->execute();
 }
-multiply::multiply(gen_container &cont, int level) {
+multiply::multiply(gen_container * cont, int level) {
 	left = return_rand_func(cont, level - 1);
 	right = return_rand_func(cont, level - 1);
 }
@@ -180,7 +180,7 @@ double divide::execute() {
 	}
 	return right->execute() / left->execute();
 }
-divide::divide(gen_container &cont, int level) {
+divide::divide(gen_container * cont, int level) {
 	left = return_rand_func(cont, level - 1);
 	right = return_rand_func(cont, level - 1);
 }
@@ -189,13 +189,11 @@ divide::~divide() {
 	left->destroy();
 	delete right;
 	delete left;
-	delete parent_cont;
-
 }
 double add::execute() {
 	return right->execute() + left->execute();
 }
-add::add(gen_container &cont, int level) {
+add::add(gen_container * cont, int level) {
 	left = return_rand_func(cont, level - 1);
 	right = return_rand_func(cont, level - 1);
 }
@@ -208,7 +206,7 @@ add::~add() {
 double subtract::execute() {
 	return right->execute() - left->execute();
 }
-subtract::subtract(gen_container &cont, int level) {
+subtract::subtract(gen_container * cont, int level) {
 	left = return_rand_func(cont, level - 1);
 	right = return_rand_func(cont, level - 1);
 }
@@ -221,18 +219,22 @@ subtract::~subtract() {
 double buy::execute() {
 	double high = parent_cont->stock_obj->get_high();
 	int amount_to_buy = (int)amount->execute();
+	if (amount_to_buy < 0) {
+		return high;
+	}
 	if (parent_cont->balance - (amount_to_buy * high) > 0) {
 		parent_cont->stock_quant += amount_to_buy;
 		parent_cont->balance -= high * amount_to_buy;
 		return high;
 	}
 	int quant = (int)(parent_cont->balance / high);
-	parent_cont->stock_quant -= quant;
+	
 	parent_cont->balance -= quant * high;
+	parent_cont->stock_quant -= quant;
 	return high;
 }
-buy::buy(gen_container &cont, int level) {
-	parent_cont = &cont;
+buy::buy(gen_container * cont, int level) {
+	parent_cont = cont;
 	amount = return_rand_func(cont, level - 1);
 }
 buy::~buy() {
@@ -241,17 +243,22 @@ buy::~buy() {
 double sell::execute() {
 	double low = parent_cont->stock_obj->get_low();
 	int amount_to_sell = (int)amount->execute();
+	if (amount_to_sell < 0) {
+		return low;
+	}
 	if (parent_cont->stock_quant - amount_to_sell > 0) {
 		parent_cont->stock_quant-= amount_to_sell;
 		parent_cont->balance += low * amount_to_sell;
 		return low;
 	}
-	parent_cont->stock_quant -= parent_cont->stock_quant;
+	cout << "awdhalhiofhbalkfbafba" << endl;
+
 	parent_cont->balance += low * parent_cont->stock_quant;
+	parent_cont->stock_quant = 0;
 	return low;
 }
-sell::sell(gen_container &cont, int level) {
-	parent_cont = &cont;
+sell::sell(gen_container * cont, int level) {
+	parent_cont = cont;
 	amount = return_rand_func(cont, level - 1);
 }
 sell::~sell() {
@@ -264,8 +271,8 @@ double open::execute() {
 	}
 	return parent_cont->stock_obj->get_open(day);
 }
-open::open(gen_container &cont, int level) {
-	parent_cont = &cont;
+open::open(gen_container * cont, int level) {
+	parent_cont = cont;
 	if (level != 1) {
 		past = return_rand_func(cont, level - 1);
 	}
@@ -283,8 +290,8 @@ double high::execute() {
 	}
 	return parent_cont->stock_obj->get_high(day);
 }
-high::high(gen_container &cont, int level) {
-	parent_cont = &cont;
+high::high(gen_container * cont, int level) {
+	parent_cont = cont;
 	if (level != 1) {
 		past = return_rand_func(cont, level - 1);
 	}
@@ -301,8 +308,8 @@ double low::execute() {
 	}
 	return parent_cont->stock_obj->get_low(day);
 }
-low::low(gen_container &cont, int level) {
-	parent_cont = &cont;
+low::low(gen_container * cont, int level) {
+	parent_cont = cont;
 	if (level != 1) {
 		past = return_rand_func(cont, level - 1);
 	}
@@ -317,8 +324,8 @@ low::~low() {
 double close::execute() {
 	return parent_cont->stock_obj->get_close();
 }
-close::close(gen_container &cont, int level) {
-	parent_cont = &cont;
+close::close(gen_container * cont, int level) {
+	parent_cont = cont;
 	if (level != 1) {
 		past = return_rand_func(cont, level - 1);
 	}
@@ -336,8 +343,8 @@ double volume::execute() {
 	}
 	return parent_cont->stock_obj->get_volume(day);
 }
-volume::volume(gen_container &cont, int level) {
-	parent_cont = &cont;
+volume::volume(gen_container * cont, int level) {
+	parent_cont = cont;
 	if (level != 1) {
 		past = return_rand_func(cont, level - 1);
 	}
@@ -355,8 +362,8 @@ double adjusted::execute() {
 	}
 	return parent_cont->stock_obj->get_adjusted(day);
 }
-adjusted::adjusted(gen_container &cont, int level) {
-	parent_cont = &cont;
+adjusted::adjusted(gen_container * cont, int level) {
+	parent_cont = cont;
 	if (level != 1) {
 		past = return_rand_func(cont, level - 1);
 	}
@@ -370,8 +377,8 @@ adjusted::~adjusted() {
 double balance::execute() {
 	return parent_cont->get_balance();
 }
-balance::balance(gen_container &cont) {
-	parent_cont = &cont;
+balance::balance(gen_container * cont) {
+	parent_cont = cont;
 }
 balance::~balance() {
 }
@@ -381,11 +388,11 @@ double decision::execute() {
 	}
 	return left_output->execute();
 }
-decision::decision(gen_container &cont, int level) {
+decision::decision(gen_container * cont, int level) {
 	comp = return_rand_func(cont, level - 1, comparison);
 	right_output = return_rand_func(cont, level - 1);
 	left_output = return_rand_func(cont, level - 1);
-	parent_cont = &cont;
+	parent_cont = cont;
 }
 decision::~decision() {
 	comp->destroy();
@@ -401,10 +408,10 @@ double greater_than::execute() {
 	}
 	return 0;
 }
-greater_than::greater_than(gen_container &cont, int level) {
+greater_than::greater_than(gen_container * cont, int level) {
 	right = return_rand_func(cont, level - 1);
 	left = return_rand_func(cont, level - 1);
-	parent_cont = &cont;
+	parent_cont = cont;
 }
 greater_than::~greater_than() {
 	right->destroy();
@@ -418,10 +425,10 @@ double greater_than_equal::execute() {
 	}
 	return 0;
 }
-greater_than_equal::greater_than_equal(gen_container &cont, int level) {
+greater_than_equal::greater_than_equal(gen_container * cont, int level) {
 	right = return_rand_func(cont, level - 1);
 	left = return_rand_func(cont, level - 1);
-	parent_cont = &cont;
+	parent_cont = cont;
 }
 greater_than_equal::~greater_than_equal() {
 	right->destroy();
@@ -435,10 +442,10 @@ double less_than::execute() {
 	}
 	return 0;
 }
-less_than::less_than(gen_container &cont, int level) {
+less_than::less_than(gen_container * cont, int level) {
 	right = return_rand_func(cont, level - 1);
 	left = return_rand_func(cont, level - 1);
-	parent_cont = &cont;
+	parent_cont = cont;
 }
 less_than::~less_than() {
 	right->destroy();
@@ -452,10 +459,10 @@ double less_than_equal::execute() {
 	}
 	return 0;
 }
-less_than_equal::less_than_equal(gen_container &cont, int level) {
+less_than_equal::less_than_equal(gen_container * cont, int level) {
 	right = return_rand_func(cont, level - 1);
 	left = return_rand_func(cont, level - 1);
-	parent_cont = &cont;
+	parent_cont = cont;
 }
 less_than_equal::~less_than_equal() {
 	right->destroy();
@@ -469,10 +476,10 @@ double equal_node::execute() {
 	}
 	return 0;
 }
-equal_node::equal_node(gen_container &cont, int level) {
+equal_node::equal_node(gen_container * cont, int level) {
 	right = return_rand_func(cont, level - 1);
 	left = return_rand_func(cont, level - 1);
-	parent_cont = &cont;
+	parent_cont = cont;
 }
 equal_node::~equal_node() {
 	right->destroy();

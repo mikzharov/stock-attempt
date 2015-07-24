@@ -34,7 +34,7 @@ public:
 	~multiply();
 	void destroy() { this->~multiply(); };
 	gen_container * parent_cont;
-	multiply(gen_container &cont, int level = 1);
+	multiply(gen_container * cont, int level = 1);
 
 };
 class divide : public node {
@@ -47,7 +47,7 @@ public:
 	double execute();
 	~divide();
 	void destroy() { this->~divide(); };
-	divide(gen_container &cont, int level = 1);
+	divide(gen_container * cont, int level = 1);
 };
 class add : public node {
 public:
@@ -59,7 +59,7 @@ public:
 	double execute();
 	~add();
 	void destroy() { this->~add(); };
-	add(gen_container &cont, int level = 1);
+	add(gen_container * cont, int level = 1);
 };
 class subtract : public node {
 public:
@@ -71,7 +71,7 @@ public:
 	double execute();
 	~subtract();
 	void destroy() { this->~subtract(); };
-	subtract(gen_container &cont, int level = 1);
+	subtract(gen_container * cont, int level = 1);
 };
 class buy : public node {
 public:
@@ -82,7 +82,7 @@ public:
 	double execute();
 	~buy();
 	void destroy() { this->~buy(); };
-	buy(gen_container &cont, int level = 1);
+	buy(gen_container * cont, int level = 1);
 };
 class sell : public node {
 public:
@@ -93,7 +93,7 @@ public:
 	double execute();
 	~sell();
 	void destroy() { this->~sell(); };
-	sell(gen_container &cont, int level = 1);
+	sell(gen_container * cont, int level = 1);
 };
 class open : public node {
 public:
@@ -104,7 +104,7 @@ public:
 	double execute();
 	~open();
 	void destroy() { this->~open(); };
-	open(gen_container &cont, int level = 1);
+	open(gen_container * cont, int level = 1);
 };
 class high : public node {
 public:
@@ -115,7 +115,7 @@ public:
 	double execute();
 	~high();
 	void destroy() { this->~high(); };
-	high(gen_container &cont, int level = 1);
+	high(gen_container * cont, int level = 1);
 };
 class low : public node {
 public:
@@ -126,7 +126,7 @@ public:
 	double execute();
 	~low();
 	void destroy() { this->~low(); };
-	low(gen_container &cont, int level = 1);
+	low(gen_container *cont, int level = 1);
 };
 class close : public node {
 public:
@@ -137,7 +137,7 @@ public:
 	double execute();
 	~close();
 	void destroy() { this->~close(); };
-	close(gen_container &cont, int level = 1);
+	close(gen_container *cont, int level = 1);
 };
 class volume : public node {
 public:
@@ -148,7 +148,7 @@ public:
 	double execute();
 	~volume();
 	void destroy() { this->~volume(); };
-	volume(gen_container &cont, int level = 1);
+	volume(gen_container *cont, int level = 1);
 };
 class adjusted : public node {
 public:
@@ -159,7 +159,7 @@ public:
 	double execute();
 	~adjusted();
 	void destroy() { this->~adjusted(); };
-	adjusted(gen_container &cont, int level = 1);
+	adjusted(gen_container *cont, int level = 1);
 };
 class balance : public node {
 public:
@@ -169,7 +169,7 @@ public:
 	double execute();
 	~balance();
 	void destroy() { this->~balance(); };
-	balance(gen_container &cont);
+	balance(gen_container *cont);
 };
 class decision : public node {
 public:
@@ -181,7 +181,7 @@ public:
 	double execute();
 	~decision();
 	void destroy() { this->~decision(); };
-	decision(gen_container &cont, int level = 1);
+	decision(gen_container *cont, int level = 1);
 };
 class greater_than : public node {
 public:
@@ -192,7 +192,7 @@ public:
 	double execute();
 	~greater_than();
 	void destroy() { this->~greater_than(); };
-	greater_than(gen_container &cont, int level = 1);
+	greater_than(gen_container *cont, int level = 1);
 };
 class greater_than_equal : public node {
 public:
@@ -203,7 +203,7 @@ public:
 	double execute();
 	~greater_than_equal();
 	void destroy() { this->~greater_than_equal(); };
-	greater_than_equal(gen_container &cont, int level = 1);
+	greater_than_equal(gen_container *cont, int level = 1);
 };
 class less_than : public node {
 public:
@@ -214,7 +214,7 @@ public:
 	double execute();
 	~less_than();
 	void destroy() { this->~less_than(); };
-	less_than(gen_container &cont, int level = 1);
+	less_than(gen_container *cont, int level = 1);
 };
 class less_than_equal : public node {
 public:
@@ -225,7 +225,7 @@ public:
 	double execute();
 	~less_than_equal();
 	void destroy() { this->~less_than_equal(); };
-	less_than_equal(gen_container &cont, int level = 1);
+	less_than_equal(gen_container *cont, int level = 1);
 };
 //originally named just "equal" but renamed after conflicts with other things named "equal"
 class equal_node : public node {
@@ -237,7 +237,7 @@ public:
 	double execute();
 	~equal_node();
 	void destroy() { this->~equal_node(); };
-	equal_node(gen_container &cont, int level = 1);
+	equal_node(gen_container *cont, int level = 1);
 };
 class value : public node {
 public:

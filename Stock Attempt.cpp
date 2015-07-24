@@ -55,9 +55,16 @@ int main()
 	stock a("AMZN");
 	gen_container b(a);
 	b.balance = 100;
-	add c(b, 2);
-	b.node = &c;
-	cout << b.node->execute();
+	b.stock_quant = 1;
+	sell * c = new sell(&b, 2);
+	c->amount->destroy();
+	value * d = new value ();
+	d->content = 500;
+	c->amount = d;
+	b.node = c;
+	b.node->execute();
+	cout << b.stock_obj->get_high() << endl;
+	cout << b.balance << " _ " << b.stock_quant << endl;
 
 
 	string hi;
