@@ -63,9 +63,11 @@ int main()
 	c->amount = d;
 	b.node = c;
 	b.node->execute();
-	cout << b.stock_obj->get_high() << endl;
 	cout << b.balance << " _ " << b.stock_quant << endl;
 
+	gen_container e = b.copy();
+	e.node->execute();
+	cout << e.balance << " _ " << e.stock_quant << endl;
 
 	string hi;
 	cin >> hi;

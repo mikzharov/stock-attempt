@@ -161,6 +161,15 @@ node * return_rand_func(gen_container * cont, int level, int arity = -1) {
 gen_container::gen_container(string stock_name) {
 	stock_obj = new stock (stock_name);
 }
+gen_container * gen_container::copy() {
+	return new gen_container(this);
+}
+gen_container::gen_container(gen_container * self) {
+	stock_obj = self->stock_obj->copy();
+	stock_quant = self->stock_quant;
+	balance = self->balance;
+	node = self->node->copy();
+}
 double multiply::execute() {
 	return right->execute() * left->execute();
 }
@@ -174,6 +183,14 @@ multiply::~multiply() {
 	delete right;
 	delete left;
 }
+node * multiply::copy() {
+	return new multiply(this);
+}
+multiply::multiply(multiply * self) {
+	this->left = self->left->copy();
+	this->right = self->right->copy();
+	this->parent_cont = self->parent_cont;
+}
 double divide::execute() {
 	if (left->execute()==0) {
 		return 1;
@@ -183,12 +200,21 @@ double divide::execute() {
 divide::divide(gen_container * cont, int level) {
 	left = return_rand_func(cont, level - 1);
 	right = return_rand_func(cont, level - 1);
+	parent_cont = cont;
 }
 divide::~divide() {
 	right->destroy();
 	left->destroy();
 	delete right;
 	delete left;
+}
+node * divide::copy() {
+	return new divide(this);
+}
+divide::divide(divide * self) {
+	this->left = self->left->copy();
+	this->right = self->right->copy();
+	parent_cont = self->parent_cont;
 }
 double add::execute() {
 	return right->execute() + left->execute();
@@ -203,6 +229,14 @@ add::~add() {
 	delete left;
 	delete right;
 }
+node * add::copy() {
+	return new add(this);
+}
+add::add(add * self) {
+	this->left = self->left->copy();
+	this->right = self->right->copy();
+	parent_cont = self->parent_cont;
+}
 double subtract::execute() {
 	return right->execute() - left->execute();
 }
@@ -215,6 +249,14 @@ subtract::~subtract() {
 	left->destroy();
 	delete right;
 	delete left;
+}
+node * subtract::copy() {
+	return new subtract(this);
+}
+subtract::subtract(subtract * self) {
+	this->left = self->left->copy();
+	this->right = self->right->copy();
+	parent_cont = self->parent_cont;
 }
 double buy::execute() {
 	double high = parent_cont->stock_obj->get_high();
@@ -240,6 +282,13 @@ buy::buy(gen_container * cont, int level) {
 buy::~buy() {
 	delete amount;
 }
+node * buy::copy() {
+	return new buy(this);
+}
+buy::buy(buy * self) {
+	parent_cont = self->parent_cont;
+	this->amount = self->amount->copy();
+}
 double sell::execute() {
 	double low = parent_cont->stock_obj->get_low();
 	int amount_to_sell = (int)amount->execute();
@@ -251,7 +300,6 @@ double sell::execute() {
 		parent_cont->balance += low * amount_to_sell;
 		return low;
 	}
-	cout << "awdhalhiofhbalkfbafba" << endl;
 
 	parent_cont->balance += low * parent_cont->stock_quant;
 	parent_cont->stock_quant = 0;
@@ -263,6 +311,13 @@ sell::sell(gen_container * cont, int level) {
 }
 sell::~sell() {
 	delete amount;
+}
+node * sell::copy() {
+	return new sell(this);
+}
+sell::sell(sell * self) {
+	this->amount = self->amount->copy();
+	this->parent_cont = self->parent_cont;
 }
 double open::execute() {
 	int day = 0;
@@ -283,6 +338,13 @@ open::~open() {
 	}
 	delete past;
 }
+node * open::copy() {
+	return new open(this);
+}
+open::open(open * self) {
+	this->past = self->past->copy();
+	this->parent_cont = self->parent_cont;
+}
 double high::execute() {
 	int day = 0;
 	if (past != nullptr) {
@@ -300,6 +362,13 @@ high::~high() {
 	if(past!=nullptr)
 	past->destroy();
 	delete past;
+}
+node * high::copy() {
+	return new high(this);
+}
+high::high(high * self) {
+	this->past = self->past->copy();
+	this->parent_cont = self->parent_cont;
 }
 double low::execute() {
 	int day = 0;
@@ -319,7 +388,13 @@ low::~low() {
 		past->destroy();
 	}
 	delete past;
-
+}
+node * low::copy() {
+	return new low(this);
+}
+low::low(low * self) {
+	this->past = self->past->copy();
+	this->parent_cont = self->parent_cont;
 }
 double close::execute() {
 	return parent_cont->stock_obj->get_close();
@@ -335,6 +410,13 @@ close::~close() {
 		past->destroy();
 	}
 	delete past;
+}
+node * close::copy() {
+	return new close(this);
+}
+close::close(close * self) {
+	this->past = self->past->copy();
+	this->parent_cont = self->parent_cont;
 }
 double volume::execute() {
 	int day = 0;
@@ -355,6 +437,13 @@ volume::~volume() {
 	}
 	delete past;
 }
+node * volume::copy() {
+	return new volume(this);
+}
+volume::volume(volume * self) {
+	this->past = self->past->copy();
+	this->parent_cont = self->parent_cont;
+}
 double adjusted::execute() {
 	int day = 0;
 	if (past != nullptr) {
@@ -374,6 +463,13 @@ adjusted::~adjusted() {
 	}
 	delete past;
 }
+node * adjusted::copy() {
+	return new adjusted(this);
+}
+adjusted::adjusted(adjusted * self) {
+	this->past = self->past->copy();
+	this->parent_cont = self->parent_cont;
+}
 double balance::execute() {
 	return parent_cont->get_balance();
 }
@@ -382,12 +478,19 @@ balance::balance(gen_container * cont) {
 }
 balance::~balance() {
 }
+node * balance::copy() {
+	return new balance(this);
+}
+balance::balance(balance * self) {
+	this->parent_cont = self->parent_cont;
+}
 double decision::execute() {
 	if (comp->execute() == 1) {
 		return right_output->execute();
 	}
 	return left_output->execute();
 }
+
 decision::decision(gen_container * cont, int level) {
 	comp = return_rand_func(cont, level - 1, comparison);
 	right_output = return_rand_func(cont, level - 1);
@@ -401,6 +504,15 @@ decision::~decision() {
 	delete comp;
 	delete right_output;
 	delete left_output;
+}
+node * decision::copy() {
+	return new decision(this);
+}
+decision::decision(decision * self) {
+	this->left_output = self->left_output->copy();
+	this->right_output = self->right_output->copy();
+	this->comp = self->comp->copy();
+	this->parent_cont = self->parent_cont;
 }
 double greater_than::execute() {
 	if (right->execute() > left->execute()) {
@@ -419,6 +531,14 @@ greater_than::~greater_than() {
 	delete right;
 	delete left;
 }
+node * greater_than::copy() {
+	return new greater_than(this);
+}
+greater_than::greater_than(greater_than * self) {
+	this->parent_cont = self->parent_cont;
+	this->left = self->left->copy();
+	this->right = self->right->copy();
+}
 double greater_than_equal::execute() {
 	if (right->execute() >= left->execute()) {
 		return 1;
@@ -435,6 +555,14 @@ greater_than_equal::~greater_than_equal() {
 	left->destroy();
 	delete right;
 	delete left;
+}
+node * greater_than_equal::copy() {
+	return new greater_than_equal(this);
+}
+greater_than_equal::greater_than_equal(greater_than_equal * self) {
+	this->left = self->left->copy();
+	this->right = self->right->copy();
+	this->parent_cont = self->parent_cont;
 }
 double less_than::execute() {
 	if (right->execute() < left->execute()) {
@@ -453,6 +581,14 @@ less_than::~less_than() {
 	delete right;
 	delete left;
 }
+node * less_than::copy() {
+	return new less_than(this);
+}
+less_than::less_than(less_than * self) {
+	this->left = self->left->copy();
+	this->right = self->right->copy();
+	this->parent_cont = self->parent_cont;
+}
 double less_than_equal::execute() {
 	if (right->execute() <= left->execute()) {
 		return 1;
@@ -469,6 +605,14 @@ less_than_equal::~less_than_equal() {
 	left->destroy();
 	delete right;
 	delete left;
+}
+node * less_than_equal::copy() {
+	return new less_than_equal(this);
+}
+less_than_equal::less_than_equal(less_than_equal * self) {
+	this->left = self->left->copy();
+	this->right = self->right->copy();
+	this->parent_cont = self->parent_cont;
 }
 double equal_node::execute() {
 	if (right->execute() == left->execute()) {
@@ -487,6 +631,14 @@ equal_node::~equal_node() {
 	delete right;
 	delete left;
 }
+node * equal_node::copy() {
+	return new equal_node(this);
+}
+equal_node::equal_node(equal_node * self) {
+	this->left = self->left->copy();
+	this->right = self->right->copy();
+	this->parent_cont = self->parent_cont;
+}
 double value::execute() {
 	return content;
 }
@@ -496,4 +648,10 @@ value::value() {
 	std::uniform_real_distribution<double> unif(lower_bound, upper_bound);
 	std::default_random_engine re;
 	content = unif(re);
+}
+node * value::copy() {
+	return new value(this);
+}
+value::value(value * self) {
+	this->content = self->content;
 }

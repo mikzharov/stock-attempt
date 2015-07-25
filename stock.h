@@ -17,7 +17,9 @@ class stock {
 public:
 	stock() {};
 	stock(string symbol);
-	
+	stock * copy() { return new stock(this); };
+	stock(stock * self);
+
 	int length;
 	void next_day();
 	tm get_date();

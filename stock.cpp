@@ -138,6 +138,12 @@ stock::stock(string symbol) {
 		throw exception("Operation time is invalid");
 	}
 }
+stock::stock(stock * self) {
+	length = self->length;
+	array_index = self->array_index;
+	symbol = self->symbol;
+	content = self->content;
+}
 void stock::next_day() {
 	operation_time += 86400;//adds a day
 	tm temp;
