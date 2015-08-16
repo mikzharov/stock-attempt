@@ -31,46 +31,26 @@ int random_in_range1(int min, int max) {
 
 	return uni(rng);
 }
+
+double add(double a, double b, string * symbol, stock * data) {
+	if (symbol != nullptr) {
+		(*symbol) = "+";
+	}
+	return a + b;
+}
 int main()
 {
-	/*tm temp;
-	cout << RAND_MAX;
-
-
-	try{
-		stock a("AMZN");
-		localtime_s(&temp, &a.operation_time);
-		cout << put_time(&temp, "%c") << endl;
-
-		a.next_day();
-
-		localtime_s(&temp, &a.operation_time);
-		cout << put_time(&temp, "%c") << endl;
-	}
-	catch (exception e) {
-		cout << e.what();
-	}*/
-
-
 	stock a("AMZN");
-	gen_container b(a);
-	b.balance = 100;
-	b.stock_quant = 1;
-	sell * c = new sell(&b, 2);
-	c->amount->destroy();
-	value * d = new value ();
-	d->content = 500;
-	c->amount = d;
-	b.node = c;
-	b.node->execute();
-	cout << b.balance << " _ " << b.stock_quant << endl;
+	while(true){
+		node::add_func(add);
+		node node(&a);
+		
 
-	gen_container e = b.copy();
-	e.node->execute();
-	cout << e.balance << " _ " << e.stock_quant << endl;
+		cout << node << endl;
 
-	string hi;
-	cin >> hi;
+		string hi;
+		cin >> hi;
+	}
 	return 0;
 }
 
