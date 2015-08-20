@@ -41,9 +41,9 @@ void node::write(vector<string> * vect, unsigned int depth) {
 		}
 	}
 	if(arity != 0){
-		for (unsigned int i = 0; i < children_array.size() && children_array[i] != nullptr; i++) {
-			if (!children_array[i]->is_written) {
-				children_array[i]->write(vect, depth + 1);
+		for (unsigned int i = 0; i < children_vector.size() && children_vector[i] != nullptr; i++) {
+			if (!children_vector[i]->is_written) {
+				children_vector[i]->write(vect, depth + 1);
 			}
 		}
 	}
@@ -73,14 +73,29 @@ void node::write(vector<string> * vect, unsigned int depth) {
 	(*vect)[depth] += ",";
 	is_written = true;
 }
+node node::copy() {
+	return node(this);
+}
+node::node(node * n) {
+	this->arity = n->arity;
+	this->array_index = n->array_index;
+	this->is_value = n->is_value;
+	this->is_written = n->is_written;
+	this->value = n->value;
+	this->stock_data = n->stock_data->copy();
 
-node::node(stock * data) {
-	
-	
+	for (unsigned int i = 0; i < n->children_vector.size() && n->children_vector[i] != nullptr; i++) {
+		cout << "COPYING" << endl;
+		this->children_vector.push_back(new node(n->children_vector[i])); 
+	}
+}
+node::node(stock * data, int max_depth) {
+	is_value = false;
 	stock_data = data;
+	arity = -1;
 	unsigned int total_methods = method0.size() + method1.size() + method2.size() + method3.size();
 	unsigned int index = random_in_range(0, total_methods);
-	if (total_methods == index) {
+	if (total_methods == index || max_depth == 0) {
 		is_value = true;
 		double lower_bound = 0;
 		double upper_bound = 1000;//I don't know why I chose this value
@@ -90,42 +105,45 @@ node::node(stock * data) {
 		arity = 0;
 		return;
 	}
-	is_value = false;
-
-	if (index < method0.size()) {
-		array_index = index;
-		arity = 0;
-		for (unsigned int i = 0; i < arity; i++) {
-			children_array.push_back(new node(stock_data));
+	bool found = false;
+	while(!found){
+		switch (random_in_range(0, 3)) {
+			case 0:
+				if(method0.size() > 0){
+					arity = 0;
+					array_index = random_in_range(0, method0.size() - 1);
+					found = true;
+				}
+				break;
+			case 1:
+				if (method1.size() > 0) {
+					arity = 1;
+					array_index = random_in_range(0, method1.size() - 1);
+					found = true;
+				}
+				break;
+			case 2:
+				if (method2.size() > 0) {
+					arity = 2;
+					array_index = random_in_range(0, method2.size() - 1);
+					found = true;
+				}
+				break;
+			case 3:
+				if (method3.size() > 0) {
+					arity = 3;
+					array_index = random_in_range(0, method3.size() - 1);
+					found = true;
+				}
+				
+				break;
+			}
 		}
-		return;
-	}
-	index -= method0.size();
-	if (index < method1.size() && method1.size() > 0) {
-		array_index = index;
-		arity = 1;
-		for (unsigned int i = 0; i < arity; i++) {
-			children_array.push_back(new node(stock_data));
-		}
-		return;
-	}
-	index -= method1.size();
-	if (index < method2.size() && method2.size() > 0) {
-		array_index = index;
-		arity = 2;
-		for (unsigned int i = 0; i < arity; i++) {
-			children_array.push_back(new node(stock_data));
-		}
-		return;
-	}
-	index -= method2.size();
-	if (index < method3.size() && method3.size() > 0) {
-		array_index = index;
-		arity = 3;
-		for (unsigned int i = 0; i < arity; i++) {
-			children_array.push_back(new node(stock_data));
-		}
-		return;
+	for (unsigned int i = 0; i < arity; i++) {
+		node * result = new node(data, max_depth - 1);
+		
+		children_vector.push_back(result);
+		cout << children_vector[i] << endl;
 	}
 	
 }
@@ -133,8 +151,10 @@ ostream& operator<<(ostream &out, node&  other) {
 	vector<string> raw_result;
 	other.write(&raw_result, 0);
 	for (unsigned int i = 0; i < raw_result.size(); i++) {
+		out << std::fixed;
 		out << raw_result[i] << endl;
 	}
+	other.clear_write_flag();
 	return out;
 }
 void node::add_func(double(*op)(string *, stock *)) {
@@ -183,30 +203,39 @@ void node::add_func(double(*op)(double, double, double, string *, stock *)) {
 	node::method3.push_back(op);
 }
 node::~node() {
-	for (unsigned int i = 0; i < children_array.size(); i++) {
-		if (children_array[i] != nullptr) {
-			children_array[i]->~node();
-			delete children_array[i];
-		}
+	for (unsigned int i = 0; i < children_vector.size() && children_vector.size() > 0 && children_vector[i] != nullptr; i++) {
+			delete children_vector[i];
 	}
 }
-double node::execute() {
-	string symbol;
-	if (is_value)return value;
-	switch (arity) {
-	case 0:
-		return (*method0[array_index])(&symbol, stock_data);
-		break;
-	case 1:
-		return (*method1[array_index])(children_array[0]->execute(), &symbol, stock_data);
-		break;
-	case 2:
-		return (*method2[array_index])(children_array[0]->execute(), children_array[1]->execute(), &symbol, stock_data);
-		break;
-	case 3:
-		return (*method3[array_index])(children_array[0]->execute(), children_array[1]->execute(), children_array[2]->execute(), &symbol, stock_data);
-		break;
+node * node::random_node_in_tree(int depth) {
+	int chance = random_in_range(0, depth);
+	if (chance == 0) {
+		return this;
 	}
+	return children_vector[random_in_range(0, arity)]->random_node_in_tree(depth + 1);
+}
+double node::execute() {
+	string symbol = "";
+	if (is_value)return value;
+	
+	switch (arity) {
+		case 0:
+			return method0[array_index](&symbol, stock_data);
+			break;
+		case 1:
+			return method1[array_index](children_vector[0]->execute(), &symbol, stock_data);
+			break;
+		case 2:
+			double arg1;
+			arg1 = children_vector[0]->execute();
+			double arg2;
+			arg2 = children_vector[1]->execute();
+			return method2[array_index](arg1, arg2, &symbol, stock_data);
+			break;
+		case 3:
+			return method3[array_index](children_vector[0]->execute(), children_vector[1]->execute(), children_vector[2]->execute(), &symbol, stock_data);
+			break;
+		}
 	throw exception("Strange arity: " + arity);
 }
 gen_container::gen_container(string stock_name) {

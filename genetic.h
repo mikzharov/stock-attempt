@@ -11,14 +11,15 @@
 using namespace std;
 class node {
 public:
-	node(stock * data);
+	node(stock * data, int max_depth);
+	node(node * n);
 	~node();
 	stock * stock_data;
 	unsigned int arity;
 	int array_index;
 
-	double value;
-	bool is_value;
+	double value = 0;
+	bool is_value = false;
 	bool is_written = false;
 
 	static vector<string> symbol0;
@@ -31,7 +32,7 @@ public:
 	static vector<double(*)(double, double, string *, stock *)> method2;
 	static vector<double(*)(double, double, double, string *, stock *)> method3;
 
-	vector<node *> children_array;
+	vector<node *> children_vector;
 
 	void static add_func(double(*op)(string *, stock *));
 	void static add_func(double(*op)(double, string *, stock *));
@@ -47,12 +48,13 @@ public:
 
 	void write(vector<string> *, unsigned int depth);
 	void clear_write_flag() { 
-		for (unsigned int i = 0; i < children_array.size() && children_array[i] != nullptr; i++){
-			is_written = false; 
-			children_array[i] = false;
+		is_written = false;
+		for (unsigned int i = 0; i < children_vector.size() && children_vector[i] != nullptr; i++){
+			children_vector[i]->is_written = false;
 		}
 	}
-	
+	node copy();
+	node * random_node_in_tree(int depth = 0);
 };
 ostream& operator<<(ostream &out, node&  other);
 class gen_container {
