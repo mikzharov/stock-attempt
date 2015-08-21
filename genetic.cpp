@@ -23,14 +23,8 @@ int node::zero_arity_percent = 25;
 int node::one_arity_percent = 25;
 int node::two_arity_percent = 25;
 int node::three_arity_percent = 25;
-std::random_device rd;     // only used once to initialise (seed) engine
-std::mt19937 rng(rd());    // random-number engine used (Mersenne-Twister in this case)
-int random_in_range(int min, int max) {
 
-	std::uniform_int_distribution<int> uni(min, max); // guaranteed unbiased
-	return uni(rng);
-}
-
+random_in_range r;
 void node::write(vector<string> * vect, unsigned int depth) {
 	if (vect == nullptr) {
 		throw exception("Null vector pointer");
@@ -94,7 +88,7 @@ node::node(stock * data, int max_depth) {
 	stock_data = data;
 	arity = -1;
 	unsigned int total_methods = method0.size() + method1.size() + method2.size() + method3.size();
-	unsigned int index = random_in_range(0, total_methods);
+	unsigned int index = r(0, total_methods);
 	if (total_methods == index || max_depth == 0) {
 		is_value = true;
 		double lower_bound = 0;
@@ -107,32 +101,32 @@ node::node(stock * data, int max_depth) {
 	}
 	bool found = false;
 	while(!found){
-		switch (random_in_range(0, 3)) {
+		switch (r(0, 3)) {
 			case 0:
 				if(method0.size() > 0){
 					arity = 0;
-					array_index = random_in_range(0, method0.size() - 1);
+					array_index = r(0, method0.size() - 1);
 					found = true;
 				}
 				break;
 			case 1:
 				if (method1.size() > 0) {
 					arity = 1;
-					array_index = random_in_range(0, method1.size() - 1);
+					array_index = r(0, method1.size() - 1);
 					found = true;
 				}
 				break;
 			case 2:
 				if (method2.size() > 0) {
 					arity = 2;
-					array_index = random_in_range(0, method2.size() - 1);
+					array_index = r(0, method2.size() - 1);
 					found = true;
 				}
 				break;
 			case 3:
 				if (method3.size() > 0) {
 					arity = 3;
-					array_index = random_in_range(0, method3.size() - 1);
+					array_index = r(0, method3.size() - 1);
 					found = true;
 				}
 				
@@ -208,11 +202,11 @@ node::~node() {
 	}
 }
 node * node::random_node_in_tree(int depth) {
-	int chance = random_in_range(0, depth);
+	int chance = r(0, depth);
 	if (chance == 0) {
 		return this;
 	}
-	return children_vector[random_in_range(0, arity)]->random_node_in_tree(depth + 1);
+	return children_vector[r(0, arity)]->random_node_in_tree(depth + 1);
 }
 double node::execute() {
 	string symbol = "";

@@ -9,6 +9,15 @@
 #include <ostream>
 #include "stock.h"
 using namespace std;
+class random_in_range {
+	std::mt19937 rng;
+public:
+	random_in_range() : rng(std::random_device()()) {}
+	int operator()(int low, int high) {
+		std::uniform_int_distribution<int> uni(low, high);
+		return uni(rng);
+	}
+};
 class node {
 public:
 	node(stock * data, int max_depth);
