@@ -70,6 +70,9 @@ public:
 	gen_container * copy();
 	gen_container(gen_container * self);
 	bool operator < (const gen_container& con) const {
+		if (fabs(stock_obj->get_low() - con.stock_obj->get_low()) > DBL_EPSILON) {
+			throw exception("Stock low prices must be the same");
+		}
 		return (balance + (stock_quant * stock_obj->get_low())) < (con.balance + (con.stock_quant * con.stock_obj->get_low()));
 	}
 };

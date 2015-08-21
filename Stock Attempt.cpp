@@ -107,6 +107,22 @@ double volume(string * symbol, stock * data) {
 	}
 	return 0;
 }
+
+std::random_device rd;
+
+
+int once_seeded(int min, int max) {
+	// only used once to initialise (seed) engine
+	std::mt19937 rng(rd());   // random-number engine used (Mersenne-Twister in this case)
+	std::uniform_int_distribution<int> uni(min, max); // guaranteed unbiased
+	return uni(rng);
+}
+int inf_seeded(int min, int max) {
+	std::random_device rb;
+	std::mt19937 rng(rb());    // random-number engine used (Mersenne-Twister in this case)
+	std::uniform_int_distribution<int> uni(min, max); // guaranteed unbiased
+	return uni(rng);
+}
 int main()
 {
 	stock a("AMZN");
@@ -121,7 +137,7 @@ int main()
 	node::add_func(open);
 	node::add_func(volume);
 
-	while(true){
+	/*while(true){
 		
 		node b(&a, 10);
 		cout << std::fixed;
@@ -130,9 +146,16 @@ int main()
 		cout << "--------------------------------" << endl;
 		node c = b.copy();
 		cout << c << endl;
-		string hi;
-		cin >> hi;
+		
+	}*/
+	for (int i = 0; i < 10; i++) {
+		cout << once_seeded(0, 1);
 	}
+	cout << endl;
+	for (int i = 0; i < 10; i++) {
+		cout << inf_seeded(0, 1);
+	}
+	string hi;
+	cin >> hi;
 	return 0;
 }
-
