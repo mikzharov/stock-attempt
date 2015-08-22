@@ -8,6 +8,7 @@
 #include <vector>
 #include <ostream>
 #include "stock.h"
+#include <random>
 using namespace std;
 class random_in_range {
 	std::mt19937 rng;
@@ -22,6 +23,8 @@ class node {
 public:
 	node(stock * data, int max_depth);
 	node(node * n);
+	node(vector<vector<string>>& n, int depth);
+	node() {};//Do nothing initialization
 	~node();
 	stock * stock_data;
 	unsigned int arity;
@@ -64,12 +67,15 @@ public:
 	}
 	node copy();
 	node * random_node_in_tree(int depth = 0);
+	static vector<vector<string>> node::from_file(std::istream &is);
 };
-ostream& operator<<(ostream &out, node&  other);
+ostream& operator<<(std::ostream &out, node *  other);
+istream& operator>>(std::istream &out, node *&  other);
+
 class gen_container {
 public:
 	double get_balance() { return balance; }
-	node * node;
+	node * node_;
 	double balance = 0;
 	int stock_quant = 0;
 	stock * stock_obj;
@@ -78,6 +84,16 @@ public:
 	gen_container(string stock_name);
 	gen_container * copy();
 	gen_container(gen_container * self);
+	void execute() {
+		int buy_sell =(int) node_->execute();
+		if(buy_sell > 0){
+			balance -= stock_obj->get_high() * buy_sell;
+			stock_quant += buy_sell;
+		} else if (buy_sell < 0) {
+			balance += stock_obj->get_low() * buy_sell;
+			stock_quant -= buy_sell;
+		}
+	}
 	bool operator < (const gen_container& con) const {
 		if (fabs(stock_obj->get_low() - con.stock_obj->get_low()) > DBL_EPSILON) {
 			throw exception("Stock low prices must be the same");

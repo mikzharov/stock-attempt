@@ -121,20 +121,23 @@ int main()
 	node::add_func(low);
 	node::add_func(open);
 	node::add_func(volume);
-
-	/*while(true){
-		
-		node b(&a, 10);
-		cout << std::fixed;
-		cout << b << endl;
-		cout << "Result: " << b.execute() << endl; 
-		cout << "--------------------------------" << endl;
-		node c = b.copy();
-		cout << c << endl;
-		
-	}*/
-
 	string hi;
+	while(true){
+		
+		std::ifstream out("C:/Users/Misha/Desktop/output.txt");
+		node * b;
+		out >> b;
+		out.close();
+		cout << fixed;
+		cout << b << endl;
+		cout << b->execute();
+		
+		cin >> hi;
+		
+	}
+	
+
+	hi;
 	cin >> hi;
 	return 0;
 }

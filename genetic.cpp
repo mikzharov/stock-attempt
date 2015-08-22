@@ -25,6 +25,14 @@ int node::two_arity_percent = 25;
 int node::three_arity_percent = 25;
 
 random_in_range r;
+bool is_double(const char* str){
+	char* endptr = 0;
+	strtod(str, &endptr);
+
+	if (*endptr != '\0' || endptr == str)
+		return false;
+	return true;
+}
 void node::write(vector<string> * vect, unsigned int depth) {
 	if (vect == nullptr) {
 		throw exception("Null vector pointer");
@@ -79,9 +87,84 @@ node::node(node * n) {
 	this->stock_data = n->stock_data->copy();
 
 	for (unsigned int i = 0; i < n->children_vector.size() && n->children_vector[i] != nullptr; i++) {
-		cout << "COPYING" << endl;
+
 		this->children_vector.push_back(new node(n->children_vector[i])); 
 	}
+}
+
+node::node(vector<vector<string>> &n, int depth) {
+	if (n.size() == 0) {
+		throw exception("Vector of vectors is 0");
+	}
+	if (n[depth].size() == 0) {
+		n.erase(n.begin());
+	}
+	string op = n[depth][0];
+	is_value = false;
+	if (is_double(op.c_str())) {
+		arity = 0;
+		array_index = 0;
+		is_value = true;
+		value = stod(op.c_str());
+
+	}
+	for (unsigned int i = 0; i < symbol0.size(); i++) {
+		if (op == symbol0[i]) {
+			arity = 0;
+			array_index = i;
+			break;
+		}
+	}
+	for (unsigned int i = 0; i < symbol1.size(); i++) {
+		if (op == symbol1[i]) {
+			arity = 1;
+			array_index = i;
+			break;
+		}
+	}
+	for (unsigned int i = 0; i < symbol2.size(); i++) {
+		if (op == symbol2[i]) {
+			arity = 2;
+			array_index = i;
+			break;
+		}
+	}
+	for (unsigned int i = 0; i < symbol3.size(); i++) {
+		if (op == symbol3[i]) {
+			arity = 3;
+			array_index = i;
+			break;
+		}
+	}
+	n[depth].erase(n[depth].begin());
+	for (unsigned int i = 0; i < arity; i++) {
+
+		children_vector.push_back(new node(n, depth + 1));
+	}
+}
+vector<vector<string>> node::from_file(std::istream &is) {
+	string str;
+	string parts;
+	std::stringstream ss;
+	vector<vector<string>> result;
+	for (int i = 0; getline(is, str); i++) {
+		ss.clear();
+		ss.str(str);
+		
+		result.push_back(vector<string>());
+		for (int b = 0; getline(ss, parts, ',');) {
+			if (parts == ",")continue;
+
+			result[i].push_back(parts);
+		}
+	}
+	//for (unsigned int i = 0; i < result.size(); i++) {
+	//	for (unsigned int b = 0; b < result[i].size(); b++) {
+	//		cout << result[i][b] << "";
+	//	}
+	//	cout << endl;
+	//}
+	return result;
 }
 node::node(stock * data, int max_depth) {
 	is_value = false;
@@ -137,18 +220,22 @@ node::node(stock * data, int max_depth) {
 		node * result = new node(data, max_depth - 1);
 		
 		children_vector.push_back(result);
-		cout << children_vector[i] << endl;
+
 	}
 	
 }
-ostream& operator<<(ostream &out, node&  other) {
+ostream& operator<<(ostream &out, node *  other) {
 	vector<string> raw_result;
-	other.write(&raw_result, 0);
+	other->write(&raw_result, 0);
 	for (unsigned int i = 0; i < raw_result.size(); i++) {
 		out << std::fixed;
 		out << raw_result[i] << endl;
 	}
-	other.clear_write_flag();
+	other->clear_write_flag();
+	return out;
+}
+istream& operator>>(istream &out, node *&  other) {
+	other = new node(node::from_file(out), 0);
 	return out;
 }
 void node::add_func(double(*op)(string *, stock *)) {
@@ -197,7 +284,7 @@ void node::add_func(double(*op)(double, double, double, string *, stock *)) {
 	node::method3.push_back(op);
 }
 node::~node() {
-	for (unsigned int i = 0; i < children_vector.size() && children_vector.size() > 0 && children_vector[i] != nullptr; i++) {
+	for (unsigned int i = 0; i < children_vector.size() && children_vector[i] != nullptr; i++) {
 			delete children_vector[i];
 	}
 }
@@ -234,6 +321,7 @@ double node::execute() {
 }
 gen_container::gen_container(string stock_name) {
 	stock_obj = new stock (stock_name);
+	node_ = new node(stock_obj, 3);
 }
 gen_container * gen_container::copy() {
 	return new gen_container(this);
