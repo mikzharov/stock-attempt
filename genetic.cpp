@@ -122,14 +122,31 @@ void node::copy_into(node * n) {
 	}
 }
 void node::point_mutate() {
-	if (is_value && arity == 0 && symbol_index[arity]->size() > 0) {
-		is_value = false;
+	if (arity == 0) {
+		switch(r(0, 2 + symbol_index[arity]->size())){
+			case 0:
+				is_value = false;
+				break;
+			case 1:
+				is_balance = false;
+				break;
+			case 2:
+				is_stock = false;
+				break;
+			default:
+				array_index = r(0, symbol_index[arity]->size());
+				break;
+		}
 	}
-	
 	array_index = r(0, symbol_index[arity]->size());
 }
 void node::subtree_mutate(node * n) {
-	copy_into(n);
+	if(n != nullptr){
+		copy_into(n);
+	} else {
+		copy_into(new node(stock_data, 3));
+	}
+
 }
 void node::shrink_mutate() {
 	if (arity == 0) {

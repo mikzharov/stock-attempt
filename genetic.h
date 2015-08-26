@@ -75,7 +75,7 @@ public:
 
 	//Genetic operators below
 	void point_mutate();
-	void subtree_mutate(node * n);
+	void subtree_mutate(node * n = nullptr);
 	void shrink_mutate();
 };
 ostream& operator<<(std::ostream &out, node *  other);
