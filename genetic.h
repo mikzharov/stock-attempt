@@ -20,30 +20,32 @@ public:
 	}
 };
 class node {
+private:
+	stock * stock_data;
+	unsigned int arity;
+	int array_index;
+	double value = 0;
+	bool is_value = false;
+	bool is_written = false;
 public:
+
 	node(stock * data, int max_depth);
 	node(node * n);
 	node(vector<vector<string>>& n, int depth);
 	node() {};//Do nothing initialization
 	~node();
-	stock * stock_data;
-	unsigned int arity;
-	int array_index;
-
-	double value = 0;
-	bool is_value = false;
-	bool is_written = false;
+	
 
 	static vector<string> symbol0;
 	static vector<string> symbol1;
 	static vector<string> symbol2;
 	static vector<string> symbol3;
-
+	static vector <vector<string> *> symbol_index;
 	static vector<double(*)(string *, stock *)> method0;
 	static vector<double(*)(double, string *, stock *)> method1;
 	static vector<double(*)(double, double, string *, stock *)> method2;
 	static vector<double(*)(double, double, double, string *, stock *)> method3;
-
+	
 	vector<node *> children_vector;
 
 	void static add_func(double(*op)(string *, stock *));
@@ -55,8 +57,9 @@ public:
 	static int one_arity_percent;
 	static int two_arity_percent;
 	static int three_arity_percent;
-
-	double execute();
+	bool is_stock = false;
+	bool is_balance = false;
+	double execute(double, double);
 
 	void write(vector<string> *, unsigned int depth);
 	void clear_write_flag() { 
@@ -68,8 +71,15 @@ public:
 	node copy();
 	node * random_node_in_tree(int depth = 0);
 	static vector<vector<string>> node::from_file(std::istream &is);
+	void copy_into(node * copy);//Copys the node in the parameter into the node that this method is called from
+
+	//Genetic operators below
+	void point_mutate();
+	void subtree_mutate(node * n);
+	void shrink_mutate();
 };
 ostream& operator<<(std::ostream &out, node *  other);
+ostream& operator<<(std::ostream &out, node&  other);
 istream& operator>>(std::istream &out, node *&  other);
 
 class gen_container {
@@ -84,15 +94,41 @@ public:
 	gen_container(string stock_name);
 	gen_container * copy();
 	gen_container(gen_container * self);
-	void execute() {
-		int buy_sell =(int) node_->execute();
-		if(buy_sell > 0){
-			balance -= stock_obj->get_high() * buy_sell;
-			stock_quant += buy_sell;
-		} else if (buy_sell < 0) {
-			balance += stock_obj->get_low() * buy_sell;
-			stock_quant -= buy_sell;
+	~gen_container() {
+		delete node_;
+		delete stock_obj;
+	}
+	void execute(ostream * out = nullptr) {
+		while(stock_obj->next_day()){
+			double result = node_->execute(stock_quant, balance);
+			if(out != nullptr){
+				*out << result << endl;
+			}
+			int buy_sell =(int) result;
+			
+			if(buy_sell > 0){
+				if(balance > stock_obj->get_high() * buy_sell) {
+					balance -= stock_obj->get_high() * buy_sell;
+					stock_quant += buy_sell;
+				} else {
+					buy_sell = (int)balance / (int)stock_obj->get_high();
+					balance = 0;
+					stock_quant += buy_sell;
+				}
+			} else if (buy_sell < 0) {
+				if(stock_quant > 0) {
+					if(buy_sell < stock_quant) {
+						balance += stock_obj->get_low() * buy_sell;
+						stock_quant -= buy_sell;
+					} else {
+						balance += buy_sell * stock_obj->get_low();
+						stock_quant = 0;
+					}
+				}
+			}
 		}
+		stock_obj->reset();
+
 	}
 	bool operator < (const gen_container& con) const {
 		if (fabs(stock_obj->get_low() - con.stock_obj->get_low()) > DBL_EPSILON) {

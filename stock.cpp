@@ -130,13 +130,6 @@ stock::stock(string symbol) {
 	}
 	length = b;
 	array_index = length - 1;
-	tm time;
-	
-	time = string_to_date(content.date[length - 1]);
-	operation_time = mktime(&time);
-	if (operation_time == -1) {
-		throw exception("Operation time is invalid");
-	}
 }
 stock::stock(stock * self) {
 	length = self->length;
@@ -144,25 +137,11 @@ stock::stock(stock * self) {
 	symbol = self->symbol;
 	content = self->content;
 }
-void stock::next_day() {
-	operation_time += 86400;//adds a day
-	tm temp;
-	localtime_s(&temp, &operation_time);
-	if (temp.tm_wday == 0) {
-		operation_time += 86400;
-	}//Skips weekends
-	if (temp.tm_wday == 6) {
-		operation_time += 86400 * 2;
-	}
+bool stock::next_day() {
+
 	if(array_index != 0){
 		array_index--;
+		return true;
 	}
-	tm now = get_date();
-	localtime_s(&temp, &operation_time);
-	assert(now.tm_year == temp.tm_year);
-	assert(now.tm_mon == temp.tm_mon);
-	assert(now.tm_mday == temp.tm_mday);
-}
-tm stock::get_date() {
-	return string_to_date(content.date[array_index]);
+	return false;
 }

@@ -25,7 +25,15 @@ using namespace std;
 
 
 
-
+double decision(double dec, double a, double b, string * symbol, stock * data) {
+	if (symbol != nullptr) {
+		(*symbol) = "?";
+	}
+	if (dec == 0) {
+		return a;
+	}
+	return b;
+}
 double add(double a, double b, string * symbol, stock * data) {
 	if (symbol != nullptr) {
 		(*symbol) = "+";
@@ -62,12 +70,30 @@ double adjusted(string * symbol, stock * data) {
 	}
 	return 0;
 }
+double adjusted_days(double d, string * symbol, stock * data) {
+	if (symbol != nullptr) {
+		(*symbol) = "adjusted_days";
+	}
+	if (data != nullptr) {
+		return data->get_adjusted((int)d);
+	}
+	return 0;
+}
 double close(string * symbol, stock * data) {
 	if (symbol != nullptr) {
 		(*symbol) = "close";
 	}
 	if (data != nullptr) {
 		return data->get_close();
+	}
+	return 0;
+}
+double close_days(double d, string * symbol, stock * data) {
+	if (symbol != nullptr) {
+		(*symbol) = "close_days";
+	}
+	if (data != nullptr) {
+		return data->get_close((int)d);
 	}
 	return 0;
 }
@@ -80,12 +106,30 @@ double high(string * symbol, stock * data) {
 	}
 	return 0;
 }
+double high_days(double d, string * symbol, stock * data) {
+	if (symbol != nullptr) {
+		(*symbol) = "high_days";
+	}
+	if (data != nullptr) {
+		return data->get_high((int)d);
+	}
+	return 0;
+}
 double low(string * symbol, stock * data) {
 	if (symbol != nullptr) {
 		(*symbol) = "low";
 	}
 	if (data != nullptr) {
 		return data->get_low();
+	}
+	return 0;
+}
+double low_days(double d, string * symbol, stock * data) {
+	if (symbol != nullptr) {
+		(*symbol) = "low_days";
+	}
+	if (data != nullptr) {
+		return data->get_low((int)d);
 	}
 	return 0;
 }
@@ -98,6 +142,15 @@ double open(string * symbol, stock * data) {
 	}
 	return 0;
 }
+double open_days(double d, string * symbol, stock * data) {
+	if (symbol != nullptr) {
+		(*symbol) = "open_days";
+	}
+	if (data != nullptr) {
+		return data->get_open((int)d);
+	}
+	return 0;
+}
 double volume(string * symbol, stock * data) {
 	if (symbol != nullptr) {
 		(*symbol) = "volume";
@@ -107,10 +160,18 @@ double volume(string * symbol, stock * data) {
 	}
 	return 0;
 }
-
+double volume_days(double d, string * symbol, stock * data) {
+	if (symbol != nullptr) {
+		(*symbol) = "volume_days";
+	}
+	if (data != nullptr) {
+		return data->get_volume((int)d);
+	}
+	return 0;
+}
 int main()
 {
-	stock a("AMZN");
+
 	node::add_func(add);
 	node::add_func(subtract);
 	node::add_func(multiply);
@@ -121,23 +182,25 @@ int main()
 	node::add_func(low);
 	node::add_func(open);
 	node::add_func(volume);
+	node::add_func(adjusted_days);
+	node::add_func(close_days);
+	node::add_func(high_days);
+	node::add_func(low_days);
+	node::add_func(open_days);
+	node::add_func(volume_days);
+	node::add_func(decision);
 	string hi;
-	while(true){
-		
-		std::ifstream out("C:/Users/Misha/Desktop/output.txt");
-		node * b;
-		out >> b;
-		out.close();
-		cout << fixed;
-		cout << b << endl;
-		cout << b->execute();
-		
-		cin >> hi;
-		
-	}
-	
 
-	hi;
-	cin >> hi;
+
+		//std::ifstream out("C:/Users/Misha/Desktop/output.txt");
+		while(true){
+			stock a("AMZN");
+			node g(&a, 5);
+			cout << g.execute(5, 5) << endl;
+			cout << g;
+			cin >> hi;
+		}
+
+	
 	return 0;
 }
