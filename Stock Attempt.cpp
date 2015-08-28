@@ -192,15 +192,16 @@ int main()
 	string hi;
 
 
-		//std::ifstream out("C:/Users/Misha/Desktop/output.txt");
+		    //std::fstream out("C:/Users/Misha/Desktop/output.txt");
 		while(true){
 			stock a("AMZN");
 			node g(&a, 5);
-			cout << g.execute(5, 5) << endl;
-			cout << g;
+			node c(&a, 2);
+			cout << g << endl;
+			cout << c << endl;
+			cout << node::breed(&g, &c);
 			cin >> hi;
 		}
-
 	
 	return 0;
 }

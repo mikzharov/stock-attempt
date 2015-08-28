@@ -65,18 +65,19 @@ public:
 	void clear_write_flag() { 
 		is_written = false;
 		for (unsigned int i = 0; i < children_vector.size() && children_vector[i] != nullptr; i++){
-			children_vector[i]->is_written = false;
+			children_vector[i]->clear_write_flag();
 		}
 	}
 	node copy();
-	node * random_node_in_tree(int depth = 0);
+	node * random_node_in_tree(int depth = 0, node * current = nullptr);
 	static vector<vector<string>> node::from_file(std::istream &is);
-	void copy_into(node * copy);//Copys the node in the parameter into the node that this method is called from
+	void copy_into(const node * copy);//Copys the node in the parameter into the node that this method is called from
 
 	//Genetic operators below
 	void point_mutate();
 	void subtree_mutate(node * n = nullptr);
 	void shrink_mutate();
+	static node * breed(node * mother, node * father);
 };
 ostream& operator<<(std::ostream &out, node *  other);
 ostream& operator<<(std::ostream &out, node&  other);
