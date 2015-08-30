@@ -11,6 +11,8 @@
 #include <chrono>
 #include <assert.h>
 using namespace std;
+vector<quote> stock::content;
+vector<string> stock::symbol_index;
 static size_t write_data(char *contents, size_t size, size_t nmemb, string &userp) {
 	for (unsigned int c = 0; c < size * nmemb; c++)
 	{
@@ -26,22 +28,6 @@ tm string_to_date(const string &date) {
 	time.tm_min = 0;
 	time.tm_sec = 0;
 	return time;
-}
-quote::~quote() {
-	if(date != nullptr)
-	delete[] date;
-	if (open != nullptr)
-	delete[] open;
-	if (high != nullptr)
-	delete[] high;
-	if (low != nullptr)
-	delete[] low;
-	if (close != nullptr)
-	delete[] close;
-	if (volume != nullptr)
-	delete[] volume;
-	if (adjusted != nullptr)
-	delete[] adjusted;
 }
 vector<string> stock::initialize() {
 	CURL *curl;
@@ -81,61 +67,74 @@ vector<string> stock::initialize() {
 	throw exception("Curl not initialized");
 }
 stock::stock(string symbol) {
+	get_values(symbol);
+}
+void stock::get_values(string symbol) {
+	if (symbol.empty()) throw exception("No empty symbols");
+	for (unsigned int i = 0; i < symbol_index.size(); i++) {
+		if (symbol == symbol_index[i]) {
+			symbol_index_int = i;
+			length = content[i].date.size();
+			array_index = content[i].date.size() - 1;
+			this->symbol = symbol;
+			return;
+		}
+	}
 	vector<string> lines;
 	this->symbol = symbol;
 	ifstream file_exists(this->symbol);
 	if (file_exists.good()) {
 		string line;
-		while(!file_exists.eof()){
+		while (!file_exists.eof()) {
 			getline(file_exists, line);
 			if (line.empty())continue;
 			lines.push_back(line);
 		}
 		file_exists.close();
-	}else{
+	} else {
 		file_exists.close();
 		lines = initialize();
 		ofstream outputFile(this->symbol);
 		for (auto &i : lines) {
-			outputFile << i <<endl;
+			outputFile << i << endl;
 		}
 		outputFile.close();
 	}
-	content.date = new string[lines.size()];
-	content.open = new double[lines.size()];
-	content.high = new double[lines.size()];
-	content.low = new double[lines.size()];
-	content.close = new double[lines.size()];
-	content.volume = new long[lines.size()];
-	content.adjusted = new double[lines.size()];
+	int lines_ = lines.size() + 2;
+	quote content_;
+	content_.date.resize(lines_);
+	content_.open.resize(lines_);
+	content_.high.resize(lines_);
+	content_.low.resize(lines_);
+	content_.close.resize(lines_);
+	content_.volume.resize(lines_);
+	content_.adjusted.resize(lines_);
 	int b = 0;
 	for (auto &i : lines) {
 		if (i.empty())continue;
 		std::istringstream ss(i);
 		string temp;
-		getline(ss, content.date[b], ',');
+
+		getline(ss, content_.date[b], ',');
 		getline(ss, temp, ',');
-		content.open[b] = stod(temp);
+		content_.open[b] = stod(temp);
 		getline(ss, temp, ',');
-		content.high[b] = stod(temp);
+		content_.high[b] = stod(temp);
 		getline(ss, temp, ',');
-		content.low[b] = stod(temp);
+		content_.low[b] = stod(temp);
 		getline(ss, temp, ',');
-		content.close[b] = stod(temp);
+		content_.close[b] = stod(temp);
 		getline(ss, temp, ',');
-		content.volume[b] = stoi(temp);
+		content_.volume[b] = stoi(temp);
 		getline(ss, temp, ',');
-		content.adjusted[b] = stod(temp);
+		content_.adjusted[b] = stod(temp);
 		b++;
 	}
+	symbol_index_int = content.size();
+	content.push_back(content_);
+	symbol_index.push_back(symbol);
 	length = b;
 	array_index = length - 1;
-}
-stock::stock(stock * self) {
-	length = self->length;
-	array_index = self->array_index;
-	symbol = self->symbol;
-	content = self->content;
 }
 bool stock::next_day() {
 

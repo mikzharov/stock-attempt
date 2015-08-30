@@ -43,7 +43,7 @@ void node::write(vector<string> * vect, unsigned int depth) {
 		}
 	}
 	if(arity != 0){
-		for (unsigned int i = 0; i < children_vector.size(); i++) {
+		for (unsigned int i = 0; i < children_vector.size() && children_vector[i] != nullptr; i++) {
 			if (!children_vector[i]->is_written) {
 				children_vector[i]->write(vect, depth + 1);
 			}
@@ -93,63 +93,62 @@ void node::write(vector<string> * vect, unsigned int depth) {
 	(*vect)[depth] += ",";
 	is_written = true;
 }
-node node::copy() {
-	return node(this);
-}
 node::node(node * n) {
-	this->arity = n->arity;
-	this->array_index = n->array_index;
-	this->is_value = n->is_value;
-	this->is_written = n->is_written;
-	this->value = n->value;
-	this->stock_data = n->stock_data->copy();
-	this->is_balance = n->is_balance;
-	this->is_stock = n->is_stock;
-	for (unsigned int i = 0; i < n->children_vector.size(); i++) {
-		this->children_vector.push_back(new node(n->children_vector[i])); 
-	}
+	copy_into(n);
 }
 void node::copy_into(const node * n) {
-	for (unsigned int i = 0; i < children_vector.size() && children_vector[i] != nullptr; i++) {
-		delete children_vector[i];
-	}
-	children_vector.clear();
+	//for (unsigned int i = 0; i < children_vector.size() && children_vector[i] != nullptr; i++) {
+	//	delete children_vector[i];
+	//}
+	this->children_vector.clear();
 	this->arity = n->arity;
 	this->array_index = n->array_index;
 	this->is_value = n->is_value;
 	this->is_written = n->is_written;
 	this->value = n->value;
-	this->stock_data = n->stock_data->copy();
+	assert(!n->stock_data.symbol.empty());
+
 	this->is_balance = n->is_balance;
 	this->is_stock = n->is_stock;
+	assert(n->arity == n->children_vector.size());
 	for (unsigned int i = 0; i < n->children_vector.size(); i++) {
 		this->children_vector.push_back(new node(n->children_vector[i]));
 	}
 }
 void node::point_mutate() {
 	if (arity == 0) {
-		switch(r(0, 2 + symbol_index[arity]->size())){
+		switch(r(0, 2 + symbol_index[arity]->size() - 1)){
 			case 0:
-				is_value = false;
+				//Nothing
 				break;
 			case 1:
-				is_balance = false;
+				is_balance = true;
+				is_value = false;
+				is_stock = false;
+				
 				break;
 			case 2:
-				is_stock = false;
+				is_stock = true;
+				is_balance = false;
+				is_value = false;
 				break;
 			default:
-				array_index = r(0, symbol_index[arity]->size());
+				array_index = r(0, symbol_index[arity]->size() - 1);
+				is_value = false;
+				is_stock = false;
+				is_balance = false;
 				break;
 		}
 	}
-	array_index = r(0, symbol_index[arity]->size());
+	array_index = r(0, symbol_index[arity]->size() - 1);
+	is_value = false;
 }
 void node::subtree_mutate(node * n) {
 	if(n != nullptr){
 		copy_into(n);
 	} else {
-		copy_into(new node(stock_data, 3));
+		
+		this->copy_into(new node(3));
 	}
 
 }
@@ -165,6 +164,7 @@ void node::shrink_mutate() {
 	if (symbol_index[0]->size() == 0) {
 		switch (r(0, 2)) {
 		case 0:
+			
 			is_value = true;
 			value = unif(re);
 			break;
@@ -176,11 +176,9 @@ void node::shrink_mutate() {
 			break;
 		}
 	} else {
-		array_index = r(0, symbol_index[0]->size());
+		array_index = r(0, symbol_index[0]->size() - 1);
 	}
-	for (unsigned int i = 0; i < children_vector.size() && children_vector[i] != nullptr; i++) {
-		delete children_vector[i];
-	}
+	children_vector.clear();
 }
 node::node(vector<vector<string>> &n, int depth) {
 	if (n.size() == 0) {
@@ -258,9 +256,10 @@ vector<vector<string>> node::from_file(std::istream &is) {
 	}
 	return result;
 }
-node::node(stock * data, int max_depth) {
+node::node(int max_depth) {
 	is_value = false;
-	stock_data = data;
+	assert(!data.symbol.empty());
+
 	arity = -1;
 	unsigned int total_methods = method0.size() + method1.size() + method2.size() + method3.size();
 	unsigned int index = r(0, total_methods + 3);
@@ -319,9 +318,8 @@ node::node(stock * data, int max_depth) {
 			}
 		}
 	for (unsigned int i = 0; i < arity; i++) {
-		node * result = new node(data, max_depth - 1);
+		node * result = new node(max_depth - 1);
 		children_vector.push_back(result);
-
 	}
 	
 }
@@ -364,9 +362,10 @@ node * node::breed(node * mother, node * father) {
 	node * result = new node(father);
 	node * mdna = mother->random_node_in_tree();//Mother dna
 	result->random_node_in_tree()->copy_into(mdna);
-	cout << "mDNA: " << mdna << endl;
+	//cout << "mDNA: " << mdna << endl;
 	return result;
 }
+
 void node::add_func(double (*op)(double, string *, stock *)) {
 	string op_id;
 	(*op)(1, &op_id, nullptr);
@@ -402,10 +401,12 @@ void node::add_func(double(*op)(double, double, double, string *, stock *)) {
 	node::method3.push_back(op);
 }
 node::~node() {
-	for (unsigned int i = 0; i < children_vector.size() && children_vector[i] != nullptr; i++) {
-			delete children_vector[i];
-	}
+	//for (unsigned int i = 0; i < children_vector.size(); i++) {
+	//		delete children_vector[i];
+	//}
+	children_vector.clear();
 }
+
 node * node::random_node_in_tree(int depth, node * current) {
 	int chance = r(0, depth);
 	if (chance == 0) {
@@ -417,49 +418,61 @@ node * node::random_node_in_tree(int depth, node * current) {
 	int index = r(0, arity - 1);
 	return children_vector[index]->random_node_in_tree(depth + 1, current);
 }
-double node::execute(double stock_quant, double balance) {
+void node::mutate() {
+	switch (r(0, 2)) {
+	case 0:
+		this->random_node_in_tree()->point_mutate();
+		break;
+	case 1:
+		this->random_node_in_tree()->subtree_mutate();
+		break;
+	case 2:
+		this->random_node_in_tree()->shrink_mutate();
+		break;
+	}
+}
+double node::execute(double stock_quant, double balance, stock * stock_data) {
 	string symbol = "";
 	if (is_value)return value;
 	if (is_stock)return stock_quant;
 	if (is_balance)return balance;
+	assert(!stock_data.symbol.empty());
+	assert(children_vector.size() >= arity);
 	switch (arity) {
 		
 		case 0:
 			assert(method0.size() > (unsigned)array_index);
+			assert(!stock_data.symbol.empty());
 			return method0[array_index](&symbol, stock_data);
 			break;
 		case 1:
-			assert(children_vector.size() >= arity);
-			assert(method1.size() >= (unsigned)array_index);
-			return method1[array_index](children_vector[0]->execute(stock_quant, balance), &symbol, stock_data);
+			
+			assert(method1.size() > (unsigned)array_index);
+			return method1[array_index](children_vector[0]->execute(stock_quant, balance, stock_data), &symbol, stock_data);
 			break;
 		case 2:
-			assert(children_vector.size() >= arity);
+			
 			assert(method2.size() > (unsigned)array_index);
 			double arg1;
-			arg1 = children_vector[0]->execute(stock_quant, balance);
+			
+			arg1 = children_vector[0]->execute(stock_quant, balance, stock_data);
 			double arg2;
-			arg2 = children_vector[1]->execute(stock_quant, balance);
+			arg2 = children_vector[1]->execute(stock_quant, balance, stock_data);
 			return method2[array_index](arg1, arg2, &symbol, stock_data);
 			break;
 		case 3:
 			assert(method3.size() > (unsigned)array_index);
-			assert(children_vector.size() >= arity);
-			return method3[array_index](children_vector[0]->execute(stock_quant, balance), children_vector[1]->execute(stock_quant, balance), children_vector[2]->execute(stock_quant, balance), &symbol, stock_data);
+			
+			return method3[array_index](children_vector[0]->execute(stock_quant, balance, stock_data), children_vector[1]->execute(stock_quant, balance, stock_data), children_vector[2]->execute(stock_quant, balance, stock_data), &symbol, stock_data);
 			break;
 		}
 	throw exception("Strange arity: " + arity);
 }
 gen_container::gen_container(string stock_name) {
-	stock_obj = new stock (stock_name);
-	node_ = new node(stock_obj, 3);
+	if (stock_name.empty())throw exception("No empty strings allowed");
+	stock_obj.get_values(stock_name);
+	node_ = node(3);
+	assert(!node_.stock_data.symbol.empty());
+	
 	balance = 500;
-}
-gen_container * gen_container::copy() {
-	return new gen_container(this);
-}
-gen_container::gen_container(gen_container * self) {
-	stock_obj = self->stock_obj->copy();
-	stock_quant = self->stock_quant;
-	balance = self->balance;
 }

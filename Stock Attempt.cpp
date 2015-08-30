@@ -8,12 +8,12 @@
 #include <string>
 #include <iostream>
 #include <fstream>
-#include <curl/curl.h>
+
 #include <vector>
 #include <sstream>
 #include <iomanip>
 #include <chrono>
-
+#include <algorithm>
 #include <cstdlib>
 
 #include "genetic.h"
@@ -26,6 +26,7 @@ using namespace std;
 
 
 double decision(double dec, double a, double b, string * symbol, stock * data) {
+	if (data != nullptr && data->symbol.empty())throw exception("Symbol must not be null");
 	if (symbol != nullptr) {
 		(*symbol) = "?";
 	}
@@ -35,24 +36,28 @@ double decision(double dec, double a, double b, string * symbol, stock * data) {
 	return b;
 }
 double add(double a, double b, string * symbol, stock * data) {
+	if (data != nullptr && data->symbol.empty())throw exception("Symbol must not be null");
 	if (symbol != nullptr) {
 		(*symbol) = "+";
 	}
 	return a + b;
 }
 double subtract(double a, double b, string * symbol, stock * data) {
+	if (data != nullptr && data->symbol.empty())throw exception("Symbol must not be null");
 	if (symbol != nullptr) {
 		(*symbol) = "-";
 	}
 	return a - b;
 }
 double multiply(double a, double b, string * symbol, stock * data) {
+	if (data != nullptr && data->symbol.empty())throw exception("Symbol must not be null");
 	if (symbol != nullptr) {
 		(*symbol) = "*";
 	}
 	return a * b;
 }
 double protected_divide(double a, double b, string * symbol, stock * data) {
+	if (data != nullptr && data->symbol.empty())throw exception("Symbol must not be null");
 	if (symbol != nullptr) {
 		(*symbol) = "/";
 	}
@@ -62,6 +67,7 @@ double protected_divide(double a, double b, string * symbol, stock * data) {
 	return a / b;
 }
 double adjusted(string * symbol, stock * data) {
+	if (data != nullptr && data->symbol.empty())throw exception("Symbol must not be null");
 	if (symbol != nullptr) {
 		(*symbol) = "adjusted";
 	}
@@ -71,6 +77,7 @@ double adjusted(string * symbol, stock * data) {
 	return 0;
 }
 double adjusted_days(double d, string * symbol, stock * data) {
+	if (data != nullptr && data->symbol.empty())throw exception("Symbol must not be null");
 	if (symbol != nullptr) {
 		(*symbol) = "adjusted_days";
 	}
@@ -80,6 +87,7 @@ double adjusted_days(double d, string * symbol, stock * data) {
 	return 0;
 }
 double close(string * symbol, stock * data) {
+	if (data != nullptr && data->symbol.empty())throw exception("Symbol must not be null");
 	if (symbol != nullptr) {
 		(*symbol) = "close";
 	}
@@ -89,6 +97,7 @@ double close(string * symbol, stock * data) {
 	return 0;
 }
 double close_days(double d, string * symbol, stock * data) {
+	if (data != nullptr && data->symbol.empty())throw exception("Symbol must not be null");
 	if (symbol != nullptr) {
 		(*symbol) = "close_days";
 	}
@@ -98,6 +107,7 @@ double close_days(double d, string * symbol, stock * data) {
 	return 0;
 }
 double high(string * symbol, stock * data) {
+	if (data != nullptr && data->symbol.empty())throw exception("Symbol must not be null");
 	if (symbol != nullptr) {
 		(*symbol) = "high";
 	}
@@ -107,6 +117,7 @@ double high(string * symbol, stock * data) {
 	return 0;
 }
 double high_days(double d, string * symbol, stock * data) {
+	if (data != nullptr && data->symbol.empty())throw exception("Symbol must not be null");
 	if (symbol != nullptr) {
 		(*symbol) = "high_days";
 	}
@@ -116,6 +127,7 @@ double high_days(double d, string * symbol, stock * data) {
 	return 0;
 }
 double low(string * symbol, stock * data) {
+	if (data != nullptr && data->symbol.empty())throw exception("Symbol must not be null");
 	if (symbol != nullptr) {
 		(*symbol) = "low";
 	}
@@ -125,6 +137,7 @@ double low(string * symbol, stock * data) {
 	return 0;
 }
 double low_days(double d, string * symbol, stock * data) {
+	if (data != nullptr && data->symbol.empty())throw exception("Symbol must not be null");
 	if (symbol != nullptr) {
 		(*symbol) = "low_days";
 	}
@@ -134,6 +147,7 @@ double low_days(double d, string * symbol, stock * data) {
 	return 0;
 }
 double open(string * symbol, stock * data) {
+	if (data != nullptr && data->symbol.empty())throw exception("Symbol must not be null");
 	if (symbol != nullptr) {
 		(*symbol) = "open";
 	}
@@ -143,6 +157,7 @@ double open(string * symbol, stock * data) {
 	return 0;
 }
 double open_days(double d, string * symbol, stock * data) {
+	if (data != nullptr && data->symbol.empty())throw exception("Symbol must not be null");
 	if (symbol != nullptr) {
 		(*symbol) = "open_days";
 	}
@@ -152,6 +167,7 @@ double open_days(double d, string * symbol, stock * data) {
 	return 0;
 }
 double volume(string * symbol, stock * data) {
+	if (data != nullptr && data->symbol.empty())throw exception("Symbol must not be null");
 	if (symbol != nullptr) {
 		(*symbol) = "volume";
 	}
@@ -161,6 +177,7 @@ double volume(string * symbol, stock * data) {
 	return 0;
 }
 double volume_days(double d, string * symbol, stock * data) {
+	if (data != nullptr && data->symbol.empty())throw exception("Symbol must not be null");
 	if (symbol != nullptr) {
 		(*symbol) = "volume_days";
 	}
@@ -168,6 +185,47 @@ double volume_days(double d, string * symbol, stock * data) {
 		return data->get_volume((int)d);
 	}
 	return 0;
+}
+random_in_range b;
+void global_mutate(vector<gen_container>& population, double percent) {
+	int total_mutations = (int)((population.size() * percent)/100.0);
+	for (int i = 0; i < total_mutations; i++) {
+		population[b(0, population.size())].node_.mutate();
+	}
+}
+void global_breed(vector<gen_container>& population, double percent) {
+	int pop_size = population.size();
+	int total_crossovers = (int)((pop_size * percent) / 100.0);
+	for (int i = 0; i < total_crossovers; i++) {
+		int rand_1 = pop_size / 4 * 3;
+		int rand_2 = b(rand_1, pop_size - 1);
+		int rand_3 = b(rand_1, pop_size - 1);
+		node::breed(&population[rand_2].node_, &population[rand_3].node_);
+	}
+}
+void run(int population_, int generation) {
+	vector<gen_container> population;
+
+
+	for (int i = 0; i < population_; i++) {
+		population.push_back(gen_container("AMZN"));
+	}
+
+
+	for (int i = 0; i < generation; i++) {
+		for (int i = 0; i < population_; i++) {
+			population[i].execute();
+		}
+		std::sort(population.begin(), population.end());
+
+		std::fstream out("C:/Users/Misha/Desktop/output.txt", std::fstream::out | std::fstream::trunc);
+		out << population.back().node_;
+		out.close();
+		cout << "Generation: " << i << endl;
+
+		global_mutate(population, 1);
+		global_breed(population, 5);
+	}
 }
 int main()
 {
@@ -189,19 +247,7 @@ int main()
 	node::add_func(open_days);
 	node::add_func(volume_days);
 	node::add_func(decision);
-	string hi;
-
-
-		    //std::fstream out("C:/Users/Misha/Desktop/output.txt");
-		while(true){
-			stock a("AMZN");
-			node g(&a, 5);
-			node c(&a, 2);
-			cout << g << endl;
-			cout << c << endl;
-			cout << node::breed(&g, &c);
-			cin >> hi;
-		}
 	
+	run(500, 500);
 	return 0;
 }
