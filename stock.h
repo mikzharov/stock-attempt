@@ -88,16 +88,13 @@ public:
 		else return 0; 
 	}
 	void reset() {
-		array_index = length - 1;
+		array_index = length - 1;//This sets the array index to the first entry
 	}
-	string symbol;
-	int array_index;
+	string symbol;//This is the stock symbol
+	int array_index;//The current entry being operated on
 	unsigned int symbol_index_int;
-	static vector<quote> content;
+	static vector<quote> content;//All the quotes
 	static vector<string> symbol_index;
 	const string url_base = "http://real-chart.finance.yahoo.com/table.csv?s=";
 	vector<string> initialize();
-private:
-
-	
 };

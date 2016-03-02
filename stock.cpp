@@ -102,13 +102,6 @@ void stock::get_values(string symbol) {
 	}
 	int lines_ = lines.size() + 2;
 	quote content_;
-	content_.date.resize(lines_);
-	content_.open.resize(lines_);
-	content_.high.resize(lines_);
-	content_.low.resize(lines_);
-	content_.close.resize(lines_);
-	content_.volume.resize(lines_);
-	content_.adjusted.resize(lines_);
 	int b = 0;
 	for (auto &i : lines) {
 		if (i.empty())continue;
@@ -117,17 +110,17 @@ void stock::get_values(string symbol) {
 
 		getline(ss, content_.date[b], ',');
 		getline(ss, temp, ',');
-		content_.open[b] = stod(temp);
+		content_.open.push_back(stod(temp));
 		getline(ss, temp, ',');
-		content_.high[b] = stod(temp);
+		content_.high.push_back(stod(temp));
 		getline(ss, temp, ',');
-		content_.low[b] = stod(temp);
+		content_.low.push_back(stod(temp));
 		getline(ss, temp, ',');
-		content_.close[b] = stod(temp);
+		content_.close.push_back(stod(temp));
 		getline(ss, temp, ',');
-		content_.volume[b] = stoi(temp);
+		content_.volume.push_back(stoi(temp));
 		getline(ss, temp, ',');
-		content_.adjusted[b] = stod(temp);
+		content_.adjusted.push_back(stod(temp));
 		b++;
 	}
 	symbol_index_int = content.size();
