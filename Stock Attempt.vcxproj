@@ -109,7 +109,6 @@
     <ClInclude Include="targetver.h" />
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="genetic.cpp" />
     <ClCompile Include="stdafx.cpp" />
     <ClCompile Include="Stock Attempt.cpp" />
     <ClCompile Include="stock.cpp" />
