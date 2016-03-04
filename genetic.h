@@ -21,3 +21,8 @@ public:
 		return uni(rng);
 	}
 };
+class node {
+public:
+private:
+	double (*action)(vector<double>);
+};
