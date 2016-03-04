@@ -27,5 +27,6 @@ random_in_range b;
 
 int main()
 {
+	stock stock("AMZN");
 	return 0;
 }

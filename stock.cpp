@@ -108,7 +108,8 @@ void stock::get_values(string symbol) {
 		std::istringstream ss(i);
 		string temp;
 
-		getline(ss, content_.date[b], ',');
+		getline(ss, temp, ',');
+		content_.date.push_back(temp);
 		getline(ss, temp, ',');
 		content_.open.push_back(stod(temp));
 		getline(ss, temp, ',');
