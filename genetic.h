@@ -10,6 +10,7 @@
 #include <ostream>
 #include "stock.h"
 #include <random>
+#include <memory>
 #include <assert.h>
 using namespace std;
 class random_in_range {
@@ -21,8 +22,27 @@ public:
 		return uni(rng);
 	}
 };
+typedef double(*action)(vector<double>);
 class node {
 public:
 private:
-	double (*action)(vector<double>);
+	action a;
+	int arity;
+	vector<unique_ptr<node>> children;
+};
+class descriptor {
+private:
+	action a;
+	int arity;
+public:
+	descriptor(action a, int arity) {
+		this->a = a;
+		this->arity = arity;
+	}
+	double get_arity() {
+		return arity;
+	}
+	action get_action() {
+		return a;
+	}
 };
