@@ -22,27 +22,31 @@ public:
 		return uni(rng);
 	}
 };
-typedef double(*action)(vector<double>);
+
 class node {
 public:
+	typedef vector<unique_ptr<node>> child_array;
+	typedef double(*action)(child_array);
+	node(int depth);
 private:
 	action a;
 	int arity;
-	vector<unique_ptr<node>> children;
+	child_array children;
 };
+
 class descriptor {
 private:
-	action a;
+	node::action a;
 	int arity;
 public:
-	descriptor(action a, int arity) {
+	descriptor(node::action a, int arity) {
 		this->a = a;
 		this->arity = arity;
 	}
 	double get_arity() {
 		return arity;
 	}
-	action get_action() {
+	node::action get_action() {
 		return a;
 	}
 };

@@ -41,5 +41,8 @@
     <ClCompile Include="stock.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="genetic.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
 </Project>
