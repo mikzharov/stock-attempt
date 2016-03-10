@@ -19,9 +19,13 @@ bool is_double(const char* str) {
 		return false;
 	return true;
 }
-node::node(int depth)
-{
+node::node(int depth) {
+	this->depth = depth;
 	if (depth > 0) {
-		children.push_back(make_unique<node>(0));
+
 	}
+}
+
+void descriptor_container::add_descriptor(node::action, int) {
+
 }

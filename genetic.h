@@ -26,8 +26,9 @@ public:
 class node {
 public:
 	typedef vector<unique_ptr<node>> child_array;
-	typedef double(*action)(child_array);
-	node(int depth);
+	typedef double(*action)(const child_array&);
+	node(int);
+	int depth;
 private:
 	action a;
 	int arity;
@@ -35,9 +36,6 @@ private:
 };
 
 class descriptor {
-private:
-	node::action a;
-	int arity;
 public:
 	descriptor(node::action a, int arity) {
 		this->a = a;
@@ -49,4 +47,14 @@ public:
 	node::action get_action() {
 		return a;
 	}
+private:
+	node::action a;
+	int arity;
+};
+
+class descriptor_container {
+public:
+	static void add_descriptor(node::action, int);
+private:
+	vector<vector<descriptor>> descriptors;
 };

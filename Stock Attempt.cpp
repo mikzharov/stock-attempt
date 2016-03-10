@@ -25,8 +25,7 @@ using namespace std;
 
 random_in_range b;
 
-int main()
-{
+int main() {
 	//stock stock("AMZN");
 	node node(1);
 	return 0;
