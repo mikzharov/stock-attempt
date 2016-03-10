@@ -31,13 +31,13 @@ public:
 	int depth;
 private:
 	action a;
-	int arity;
+	unsigned int arity;
 	child_array children;
 };
 
 class descriptor {
 public:
-	descriptor(node::action a, int arity) {
+	descriptor(node::action a, unsigned int arity) {
 		this->a = a;
 		this->arity = arity;
 	}
@@ -54,7 +54,7 @@ private:
 
 class descriptor_container {
 public:
-	static void add_descriptor(node::action, int);
+	static void add_descriptor(node::action, unsigned int);
 private:
-	vector<vector<descriptor>> descriptors;
+	static vector<vector<descriptor>> descriptors;
 };

@@ -25,7 +25,11 @@ node::node(int depth) {
 
 	}
 }
-
-void descriptor_container::add_descriptor(node::action, int) {
-
+vector<vector<descriptor>> descriptor_container::descriptors;
+void descriptor_container::add_descriptor(node::action a, unsigned int arity) {
+	descriptor desc = descriptor(a, arity);
+	while (descriptors.size() < arity || descriptors.size() == 0) {
+		descriptors.push_back(vector<descriptor>());
+	}
+	descriptors.at(arity).push_back(desc);
 }

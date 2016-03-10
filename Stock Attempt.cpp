@@ -17,12 +17,13 @@
 
 #include <random>
 using namespace std;
-
-
 random_in_range b;
+double five(const vector<unique_ptr<node>> &name) {
+	return 5.0;
+}
 
 int main() {
 	//stock stock("AMZN");
-	node node(1);
+	descriptor_container::add_descriptor(five, 0);
 	return 0;
 }
