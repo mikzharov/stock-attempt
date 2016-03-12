@@ -33,3 +33,10 @@ void descriptor_container::add_descriptor(node::action a, unsigned int arity) {
 	}
 	descriptors.at(arity).push_back(desc);
 }
+
+descriptor descriptor_container::get_random_descriptor(unsigned int arity) {
+	if (descriptors.size() > arity) {
+		return descriptors.at(arity).at(r(0, descriptors.at(arity).size()-1));
+	}
+	throw exception();
+}

@@ -55,6 +55,7 @@ private:
 class descriptor_container {
 public:
 	static void add_descriptor(node::action, unsigned int);
+	static descriptor get_random_descriptor(unsigned int);
 private:
 	static vector<vector<descriptor>> descriptors;
 };
