@@ -27,7 +27,10 @@
     <ClInclude Include="stock.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="genetic.h">
+    <ClInclude Include="node.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="general.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>
@@ -41,7 +44,10 @@
     <ClCompile Include="stock.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="genetic.cpp">
+    <ClCompile Include="node.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="general.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>
