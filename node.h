@@ -1,7 +1,6 @@
 #pragma once
 #include <iostream>
 #include <string>
-#include "stock.h"
 #include <stdio.h>
 #include <cstdlib>
 #include <iostream>
@@ -14,11 +13,12 @@
 
 class node {
 public:
-	typedef vector<unique_ptr<node>> child_array;
-	typedef double(*action)(const child_array&);
-	node(int);
+	node(int, stock *);
+	typedef std::vector<std::unique_ptr<node>> node::child_array;
 	int depth;
 	double result();
+	
+	typedef double(*action)(const child_array&, stock *);
 	struct descriptor {
 		action a;
 		int arity;
@@ -32,5 +32,6 @@ private:
 	static vector<vector<descriptor>> descriptors;
 	child_array children;
 	descriptor des;
+	stock * st;
 };
 

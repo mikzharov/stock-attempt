@@ -19,20 +19,19 @@
 #include <random>
 using namespace std;
 random_in_range b;
-double five(const node::child_array &name) {
+double five(const node::child_array &name, stock * a) {
 	return 5.0;
 }
-double six(const node::child_array &name) {
-	return name.at(0)->result() + 1.0;
+double six(const node::child_array &name, stock * a) {
+	return name.at(0)->result() + 1000.0;
 }
 
 int main() {
-	//stock stock("AMZN");
 	
-	
+	unique_ptr<stock> amd = make_unique<stock>("AMD");
 	node::add_descriptor(five, 0);
 	node::add_descriptor(six, 1);
-	node n(1);
+	node n(1, amd.get());
 	cout << n.result() << endl;
 	//cout<<a.get_action()(node::child_array());
 	int b;

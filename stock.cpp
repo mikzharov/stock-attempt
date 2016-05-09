@@ -74,8 +74,8 @@ void stock::get_values(string symbol) {
 	for (unsigned int i = 0; i < symbol_index.size(); i++) {
 		if (symbol == symbol_index[i]) {
 			symbol_index_int = i;
-			length = content[i].date.size();
-			array_index = content[i].date.size() - 1;
+			length = content[i].data.size();
+			array_index = content[i].data.size() - 1;
 			this->symbol = symbol;
 			return;
 		}
@@ -107,21 +107,22 @@ void stock::get_values(string symbol) {
 		if (i.empty())continue;
 		std::istringstream ss(i);
 		string temp;
-
+		struct quote::stock_data tmp;
 		getline(ss, temp, ',');
-		content_.date.push_back(temp);
+		tmp.date = (temp);
 		getline(ss, temp, ',');
-		content_.open.push_back(stod(temp));
+		tmp.open = (stod(temp));
 		getline(ss, temp, ',');
-		content_.high.push_back(stod(temp));
+		tmp.high =(stod(temp));
 		getline(ss, temp, ',');
-		content_.low.push_back(stod(temp));
+		tmp.low = (stod(temp));
 		getline(ss, temp, ',');
-		content_.close.push_back(stod(temp));
+		tmp.close = (stod(temp));
 		getline(ss, temp, ',');
-		content_.volume.push_back(stoi(temp));
+		tmp.volume = (stoi(temp));
 		getline(ss, temp, ',');
-		content_.adjusted.push_back(stod(temp));
+		tmp.adjusted = (stod(temp));
+		content_.data.push_back(tmp);
 		b++;
 	}
 	symbol_index_int = content.size();
