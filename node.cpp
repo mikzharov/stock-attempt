@@ -40,10 +40,11 @@ node::descriptor node::get_random_descriptor(unsigned int arity) {
 	throw exception();
 }
 
-void node::add_descriptor(action a, unsigned int arity) {
+void node::add_descriptor(action a, unsigned int arity, string &symbol) {
 	struct node::descriptor d;
 	d.a = a;
 	d.arity = arity;
+	d.symbol = symbol;
 	while (descriptors.size() <= arity || descriptors.size() == 0) {
 		descriptors.push_back(vector<descriptor>());
 	}

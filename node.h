@@ -22,12 +22,13 @@ public:
 	struct descriptor {
 		action a;
 		int arity;
+		string symbol;
 	};
 	static descriptor get_random_descriptor(unsigned int);
 	static int size() {
 		return (int)descriptors.size();
 	}
-	static void add_descriptor(action a, unsigned int arity);
+	static void add_descriptor(action a, unsigned int arity, string &symbol);
 private:
 	static vector<vector<descriptor>> descriptors;
 	child_array children;
