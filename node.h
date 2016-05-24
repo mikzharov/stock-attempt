@@ -25,7 +25,7 @@ public:
 	};
 	static descriptor get_random_descriptor(unsigned int);
 	static int size() {
-		return descriptors.size();
+		return (int)descriptors.size();
 	}
 	static void add_descriptor(action a, unsigned int arity);
 private:

@@ -74,8 +74,8 @@ void stock::get_values(string symbol) {
 	for (unsigned int i = 0; i < symbol_index.size(); i++) {
 		if (symbol == symbol_index[i]) {
 			symbol_index_int = i;
-			length = content[i].data.size();
-			array_index = content[i].data.size() - 1;
+			length = (int)content[i].data.size();
+			array_index = (int)content[i].data.size() - 1;
 			this->symbol = symbol;
 			return;
 		}
@@ -100,7 +100,7 @@ void stock::get_values(string symbol) {
 		}
 		outputFile.close();
 	}
-	int lines_ = lines.size() + 2;
+	int lines_ = (int)lines.size() + 2;
 	quote content_;
 	int b = 0;
 	for (auto &i : lines) {
@@ -125,7 +125,7 @@ void stock::get_values(string symbol) {
 		content_.data.push_back(tmp);
 		b++;
 	}
-	symbol_index_int = content.size();
+	symbol_index_int = (unsigned int)content.size();
 	content.push_back(content_);
 	symbol_index.push_back(symbol);
 	length = b;

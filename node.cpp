@@ -34,7 +34,7 @@ double node::result() {
 
 node::descriptor node::get_random_descriptor(unsigned int arity) {
 	if (descriptors.size() > arity) {
-		return descriptors.at(arity).at(r(0, descriptors.at(arity).size() - 1));
+		return descriptors.at(arity).at(r(0, (int)descriptors.at(arity).size() - 1));
 	}
 	cout << arity << endl;
 	throw exception();
