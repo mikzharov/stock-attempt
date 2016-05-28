@@ -46,6 +46,12 @@ double close(const node::child_array &name, stock * a) {
 	if (a == nullptr)return 0.0;
 	return (double)a->get_close((int) name.at(0)->result());
 }
+double add(const node::child_array &name, stock * a) {
+	if (name.size() < 2) {
+		return 0.0;
+	}
+	return name.at(0)->result() + name.at(1)->result();
+}
 int main() {
 	
 	unique_ptr<stock> amd = make_unique<stock>("AMD");
@@ -55,11 +61,15 @@ int main() {
 	node::add_descriptor(open, 1, string("open"));
 	node::add_descriptor(volume, 1, string("volume"));
 	node::add_descriptor(close, 1, string("close"));
+	node::add_descriptor(close, 1, string("close"));
 	node::add_descriptor(rand, 0, string("rand0-1"));
-	node n(2, amd.get());
-	cout << n.result() << endl;
-	//cout<<a.get_action()(node::child_array());
-	int b;
-	cin >> b;
+	node::add_descriptor(add, 2, string("+"));
+	int b = 1;
+	while(b == 1){
+		node n(5, amd.get());
+		cout << n.result() << endl;
+		cout << n;
+		cin >> b;
+	}
 	return 0;
 }

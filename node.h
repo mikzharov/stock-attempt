@@ -13,7 +13,7 @@
 
 class node {
 public:
-	node(int, stock *);
+	node(int, stock *, int = 0);
 	typedef std::vector<std::unique_ptr<node>> node::child_array;
 	int depth;
 	double result();
@@ -24,15 +24,19 @@ public:
 		int arity;
 		string symbol;
 	};
+	void write(vector<vector<string>>& = vector<vector<string>>());
 	static descriptor get_random_descriptor(unsigned int);
 	static int size() {
 		return (int)descriptors.size();
 	}
-	static void add_descriptor(action a, unsigned int arity, string &symbol);
+	static void add_descriptor(action a, unsigned int arity, const string &symbol);
+	const static string delimiter;
 private:
 	static vector<vector<descriptor>> descriptors;
 	child_array children;
 	descriptor des;
 	stock * st;
 };
+ostream& operator<<(ostream &out, node&  other);
+ostream& operator<<(ostream &out, node *  other);
 
