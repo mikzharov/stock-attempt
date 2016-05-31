@@ -17,9 +17,16 @@ random_in_range r;
 const string node::delimiter = ",";
 vector<vector<node::descriptor>> node::descriptors;
 node::node(int max_depth, stock * s, int current) {
+	value = r(-100, 100);
 	st = s;
 	this->depth = current;
 	if (max_depth > 0 && current < max_depth) {
+		if (r(0, size() - 1) == 0 && r(0, (int)descriptors.at(0).size() - 1) == 0) {
+			value_flag = true;
+			des.arity = 0;
+			des.symbol = to_string(value);
+			return;
+		}
 		des = get_random_descriptor(r(0, size() - 1));
 		for (int i = 0; i < des.arity; i++) {
 			children.push_back(make_unique<node>(max_depth, s, current + 1));
@@ -29,6 +36,7 @@ node::node(int max_depth, stock * s, int current) {
 	}
 }
 double node::result() {
+	if (value_flag)return value;
 	return des.a(children, st);
 }
 
@@ -46,7 +54,7 @@ node::descriptor node::get_random_descriptor(unsigned int arity) {
 	if (descriptors.size() > arity) {
 		return descriptors.at(arity).at(r(0, (int)descriptors.at(arity).size() - 1));
 	}
-	cout << arity << endl;
+	cerr << arity << endl;
 	throw exception();
 }
 

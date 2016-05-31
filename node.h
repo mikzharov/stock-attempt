@@ -25,13 +25,16 @@ public:
 		string symbol;
 	};
 	void write(vector<vector<string>>& = vector<vector<string>>());
-	static descriptor get_random_descriptor(unsigned int);
+	descriptor get_random_descriptor(unsigned int);
 	static int size() {
 		return (int)descriptors.size();
 	}
 	static void add_descriptor(action a, unsigned int arity, const string &symbol);
 	const static string delimiter;
 private:
+	double value;
+	bool value_flag = false;//This flag decides whether this node is a value node
+	descriptor return_value_descriptor;
 	static vector<vector<descriptor>> descriptors;
 	child_array children;
 	descriptor des;
