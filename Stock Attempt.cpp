@@ -67,9 +67,21 @@ int main() {
 	int b = 1;
 	while(b == 1){
 		node n(5, amd.get());
-		cout << n.result() << endl;
+		stringstream ss;
+		ss << n;
+		cout << "Result: " << n.result() << endl;
+		cout << "Node: " << endl;
 		cout << n;
+		cout << "Recovered node: " << endl;
+		node a;
+		//cout << ss.str();
+		ss >> a;
+		cout << a;
 		cin >> b;
+		if (cin.fail()) {
+			cin.clear();
+			cin.ignore(80, '\n');
+		}
 	}
 	return 0;
 }

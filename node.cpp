@@ -7,14 +7,15 @@
 #include <iostream>
 #include <vector>
 #include <ostream>
-#include "stock.h"
 #include <random>
 #include <memory>
 #include <assert.h>
 #include "general.h"
+#include "general.cpp"
 
 random_in_range r;
-const string node::delimiter = ",";
+const char node::delimiter = ',';
+const char node::end_node = '`';
 vector<vector<node::descriptor>> node::descriptors;
 node::node(int max_depth, stock * s, int current) {
 	value = r(-100, 100);
@@ -33,6 +34,31 @@ node::node(int max_depth, stock * s, int current) {
 		}
 	} else {
 		des = get_random_descriptor(0);
+	}
+}
+node::node(vector<vector<string>> &n, int depth) {
+	if (n.size() == 0) {
+		throw exception("Vector of vectors is 0");
+	}
+	string op = n[depth][0];
+	if (is_double(op.c_str())) {
+		value = std::stod(op);
+		des.arity = 0;
+		des.symbol = to_string(value);
+		value_flag = true;
+	}
+	for (vector<descriptor> temp_ : descriptors) {
+		for (descriptor temp : temp_) {
+			if (temp.symbol == op) {
+				des = temp;
+				break;
+			}
+		}
+	}
+	
+	n[depth].erase(n[depth].begin());
+	for (int i = 0; i < des.arity; i++) {
+		children.push_back(std::make_unique<node>(n, depth + 1));
 	}
 }
 double node::result() {
@@ -59,8 +85,16 @@ node::descriptor node::get_random_descriptor(unsigned int arity) {
 }
 
 void node::add_descriptor(action a, unsigned int arity, const string &symbol) {
-	if (symbol == delimiter) {
-		cerr << "add_descriptor(): symbol cannot be the delimiter";
+	if (is_double(symbol.c_str())) {
+		cerr << "add_descriptor(): symbol cannot be double";
+		throw exception();
+	}
+	if (symbol.find(end_node) != std::string::npos) {
+		cerr << "add_descriptor(): symbol cannot contain end_node delimiter";
+		throw exception();
+	}
+	if (symbol.find(delimiter) != std::string::npos) {
+		cerr << "add_descriptor(): symbol cannot contain the delimiter";
 		throw exception();
 	}
 	struct node::descriptor d;
@@ -72,18 +106,57 @@ void node::add_descriptor(action a, unsigned int arity, const string &symbol) {
 	}
 	descriptors.at(arity).push_back(d);
 }
+vector<vector<string>> node::node_graph_from_stream(istream &in) {
+	string str;
+	string parts;
+	std::stringstream ss;
+	vector<vector<string>> result;
+	for (int i = 0; getline(in, str); i++) {
+		ss.clear();
+		ss.str(str);
+		result.push_back(vector<string>());
+		for (int b = 0; getline(ss, parts, node::delimiter);) {
+			if (parts == string(node::end_node, 1))return result;
+			result[i].push_back(parts);
+		}
+	}
+
+	return result;
+}
 ostream& operator<<(ostream &out, node&  other) {
 	vector<vector<string>> a;
 	other.write(a);
 	for (unsigned int i =  0; i < a.size(); i++) {
 		for (unsigned int b = 0; b < a.at(i).size(); b++) {
-			cout << a.at(i).at(b) << node::delimiter;
+			out << a.at(i).at(b) << node::delimiter;
 		}
-		cout << endl;
+		out << endl;
 	}
+	out << node::end_node << endl;
 	return out;
 }
 ostream& operator<<(ostream &out, node *  other) {
 	out << (*other);
 	return out;
+}
+
+istream& operator>>(istream &in, node&  other) {
+	int depth = 0;
+	//Code below build vector vector structure
+	vector<vector<string>> result = node::node_graph_from_stream(in);
+	//Code below reads vector vector structure
+	if (result.size() == 0) {
+		cerr << "Size is 0";//Throws an error if the current size is 0
+		throw exception();
+	}
+	if (result[depth].size() == 0) {
+		result.erase(result.begin());
+	}
+	other.~node();
+	new (&other) node(result, depth);
+	return in;
+}
+istream& operator>>(istream &in, node *  other) {
+	in >> (*other);
+	return in;
 }

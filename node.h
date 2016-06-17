@@ -13,7 +13,9 @@
 
 class node {
 public:
+	node() {};
 	node(int, stock *, int = 0);
+	node(vector<vector<string>>& tree, int depth);
 	typedef std::vector<std::unique_ptr<node>> node::child_array;
 	int depth;
 	double result();
@@ -30,7 +32,9 @@ public:
 		return (int)descriptors.size();
 	}
 	static void add_descriptor(action a, unsigned int arity, const string &symbol);
-	const static string delimiter;
+	static vector<vector<string>> node_graph_from_stream(istream &in);
+	const static char delimiter;
+	const static char end_node;
 private:
 	double value;
 	bool value_flag = false;//This flag decides whether this node is a value node
@@ -42,4 +46,7 @@ private:
 };
 ostream& operator<<(ostream &out, node&  other);
 ostream& operator<<(ostream &out, node *  other);
+
+istream& operator>>(istream &out, node&  other);
+istream& operator>>(istream &out, node *  other);
 
