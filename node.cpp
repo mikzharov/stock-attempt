@@ -22,18 +22,18 @@ node::node(int max_depth, stock * s, int current) {
 	st = s;
 	this->depth = current;
 	if (max_depth > 0 && current < max_depth) {
-		if (r(0, size() - 1) == 0 && r(0, (int)descriptors.at(0).size() - 1) == 0) {
+		if (r(0, descriptor_size() - 1) == 0 && r(0, (int)descriptors.at(0).size() - 1) == 0) {
 			value_flag = true;
 			des.arity = 0;
 			des.symbol = to_string(value);
 			return;
 		}
-		des = get_random_descriptor(r(0, size() - 1));
-		for (int i = 0; i < des.arity; i++) {
-			children.push_back(make_unique<node>(max_depth, s, current + 1));
-		}
+		des = get_random_descriptor(r(0, descriptor_size() - 1));
 	} else {
 		des = get_random_descriptor(0);
+	}
+	for (int i = 0; i < des.arity; i++) {
+		children.push_back(make_unique<node>(max_depth, s, current + 1));
 	}
 }
 node::node(vector<vector<string>> &n, int depth) {
@@ -84,6 +84,11 @@ node::descriptor node::get_random_descriptor(unsigned int arity) {
 	throw exception();
 }
 
+int node::arity() {
+	assert(des.arity == children.size());
+	return des.arity;
+}
+
 void node::add_descriptor(action a, unsigned int arity, const string &symbol) {
 	if (is_double(symbol.c_str())) {
 		cerr << "add_descriptor(): symbol cannot be double";
@@ -120,17 +125,43 @@ vector<vector<string>> node::node_graph_from_stream(istream &in) {
 			result[i].push_back(parts);
 		}
 	}
-
 	return result;
 }
+
+node * node::get_random_node_in_tree(node * current) {
+	int chance = r(0, depth);
+	if (chance == 0 || current == nullptr) {
+		current = this;
+	}
+	if (current->arity() == 0 || arity() == 0) {
+		return current;
+	}
+	int index = r(0, des.arity - 1);
+	return children.at(index)->get_random_node_in_tree(current);
+}
+
 ostream& operator<<(ostream &out, node&  other) {
+	//This method allows you to print a node to an outputstream. For example: cout << some_node;
 	vector<vector<string>> a;
 	other.write(a);
+	bool written = false;
 	for (unsigned int i =  0; i < a.size(); i++) {
 		for (unsigned int b = 0; b < a.at(i).size(); b++) {
-			out << a.at(i).at(b) << node::delimiter;
+			if (a.at(i).at(b) != "") {
+				//Makes sure that whitespace is not printed in case the printed node does not have the
+				//depth of 0. For example, if depth = 5, then 5 lines of whitespace is printed.
+				//This flag prevents this behaviour
+				out << a.at(i).at(b) << node::delimiter;
+				written = true;
+			}
 		}
-		out << endl;
+		if (written) {
+			//Makes sure that whitespace is not printed in case the printed node does not have the
+			//depth of 0. For example, if depth = 5, then 5 lines of whitespace is printed.
+			//This flag prevents this behaviour
+			out << endl;
+			written = false;
+		}
 	}
 	out << node::end_node << endl;
 	return out;

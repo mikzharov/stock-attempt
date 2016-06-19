@@ -28,11 +28,13 @@ public:
 	};
 	void write(vector<vector<string>>& = vector<vector<string>>());
 	descriptor get_random_descriptor(unsigned int);
-	static int size() {
+	int arity();
+	static int descriptor_size() {
 		return (int)descriptors.size();
 	}
 	static void add_descriptor(action a, unsigned int arity, const string &symbol);
 	static vector<vector<string>> node_graph_from_stream(istream &in);
+	node * get_random_node_in_tree(node * current = nullptr);
 	const static char delimiter;
 	const static char end_node;
 private:
