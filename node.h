@@ -17,7 +17,6 @@ public:
 	node(int, stock *, int = 0);
 	node(vector<vector<string>>& tree, int depth);
 	typedef std::vector<std::unique_ptr<node>> node::child_array;
-	int depth;
 	double result();
 	
 	typedef double(*action)(const child_array&, stock *);
@@ -28,7 +27,9 @@ public:
 	};
 	void write(vector<vector<string>>& = vector<vector<string>>());
 	descriptor get_random_descriptor(unsigned int);
-	int arity();
+	int arity();//Returns the arity of the node
+	int get_depth();//Returns the depth of the node
+	void set_tree_depth(int depth);//Sets the deoth of the node and it's children correctly (where each child it 1 deeper than the parent)
 	static int descriptor_size() {
 		return (int)descriptors.size();
 	}
@@ -38,6 +39,7 @@ public:
 	const static char delimiter;
 	const static char end_node;
 private:
+	int depth;
 	double value;
 	bool value_flag = false;//This flag decides whether this node is a value node
 	descriptor return_value_descriptor;

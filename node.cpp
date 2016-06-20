@@ -89,6 +89,17 @@ int node::arity() {
 	return des.arity;
 }
 
+int node::get_depth() {
+	return depth;
+}
+
+void node::set_tree_depth(int depth) {
+	this->depth = depth;//Sets it's own depth
+	for (size_t i = 0; i < children.size(); i++) {//Cycles through the children array and sets their depth
+		children.at(i)->set_tree_depth(depth + 1);//The child's depth is 1 deeper than the parents depth
+	}
+}
+
 void node::add_descriptor(action a, unsigned int arity, const string &symbol) {
 	if (is_double(symbol.c_str())) {
 		cerr << "add_descriptor(): symbol cannot be double";
