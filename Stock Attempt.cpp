@@ -52,6 +52,12 @@ double add(const node::child_array &name, stock * a) {
 	}
 	return name.at(0)->result() + name.at(1)->result();
 }
+double multiply(const node::child_array &name, stock * a) {
+	if (name.size() < 2) {
+		return 0.0;
+	}
+	return name.at(0)->result() * name.at(1)->result();
+}
 int main() {
 	
 	unique_ptr<stock> amd = make_unique<stock>("AMD");
@@ -64,11 +70,16 @@ int main() {
 	node::add_descriptor(close, 1, string("close"));
 	node::add_descriptor(rand, 0, string("rand0-1"));
 	node::add_descriptor(add, 2, string("+"));
+	node::add_descriptor(multiply, 2, string("*"));
 	int b = 1;
 	while(b == 1){
 		node n(5, amd.get());
 		cout << n;
-		cout << n.get_random_node_in_tree();
+		node * a = n.get_random_node_in_tree();
+		cout << a << endl;
+		cout << a->get_index_in_parent_children_array();
+
+		//Loop things below
 		cin >> b;
 		if (cin.fail()) {
 			cin.clear();

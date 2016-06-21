@@ -17,10 +17,12 @@ random_in_range r;
 const char node::delimiter = ',';
 const char node::end_node = '`';
 vector<vector<node::descriptor>> node::descriptors;
+
 node::node(int max_depth, stock * s, int current) {
 	value = r(-100, 100);
 	st = s;
 	this->depth = current;
+	this->parent = parent;//Sets its parent so that you can traverse the tree up and down
 	if (max_depth > 0 && current < max_depth) {
 		if (r(0, descriptor_size() - 1) == 0 && r(0, (int)descriptors.at(0).size() - 1) == 0) {
 			value_flag = true;
@@ -33,10 +35,14 @@ node::node(int max_depth, stock * s, int current) {
 		des = get_random_descriptor(0);
 	}
 	for (int i = 0; i < des.arity; i++) {
-		children.push_back(make_unique<node>(max_depth, s, current + 1));
+		add_to_children(new node(max_depth, s, current + 1), false);
 	}
+	if(current == 0)
+	revalidate_tree();
 }
+
 node::node(vector<vector<string>> &n, int depth) {
+	this->parent = parent;
 	if (n.size() == 0) {
 		throw exception("Vector of vectors is 0");
 	}
@@ -58,7 +64,7 @@ node::node(vector<vector<string>> &n, int depth) {
 	
 	n[depth].erase(n[depth].begin());
 	for (int i = 0; i < des.arity; i++) {
-		children.push_back(std::make_unique<node>(n, depth + 1));
+		add_to_children(new node(n, depth + 1), false);
 	}
 }
 double node::result() {
@@ -93,11 +99,59 @@ int node::get_depth() {
 	return depth;
 }
 
+size_t node::get_index_in_parent_children_array() {
+	return index_in_parent_children_array;
+}
+
+void node::set_index_in_parent_children_array(size_t i) {
+	index_in_parent_children_array = i;
+}
+
 void node::set_tree_depth(int depth) {
 	this->depth = depth;//Sets it's own depth
 	for (size_t i = 0; i < children.size(); i++) {//Cycles through the children array and sets their depth
 		children.at(i)->set_tree_depth(depth + 1);//The child's depth is 1 deeper than the parents depth
 	}
+}
+
+void node::set_tree_stock(stock * s) {
+	this->st = s;
+	for (size_t i = 0; i < children.size(); i++) {
+		children.at(i)->set_tree_stock(s);
+	}
+}
+
+void node::set_parent(node * p) {
+	this->parent = p;
+}
+
+void node::revalidate() {
+	for (size_t i = 0; i < children.size(); i++) {
+		children.at(i)->set_parent(this);
+		children.at(i)->set_index_in_parent_children_array(i);
+	}
+}
+
+void node::revalidate_tree() {
+	revalidate();
+	for (size_t i = 0; i < children.size(); i++) {
+		children.at(i)->revalidate_tree();
+	}
+}
+
+void node::add_to_children(node * n, bool revalidate_) {
+	children.push_back(unique_ptr<node>(n));
+	if (revalidate_) {
+		revalidate();
+	}
+}
+
+void node::replace_with(node n) {
+	this->~node();
+}
+
+node * node::get_parent() {
+	return parent;
 }
 
 void node::add_descriptor(action a, unsigned int arity, const string &symbol) {
@@ -122,6 +176,7 @@ void node::add_descriptor(action a, unsigned int arity, const string &symbol) {
 	}
 	descriptors.at(arity).push_back(d);
 }
+
 vector<vector<string>> node::node_graph_from_stream(istream &in) {
 	string str;
 	string parts;
@@ -177,6 +232,7 @@ ostream& operator<<(ostream &out, node&  other) {
 	out << node::end_node << endl;
 	return out;
 }
+
 ostream& operator<<(ostream &out, node *  other) {
 	out << (*other);
 	return out;
@@ -196,8 +252,10 @@ istream& operator>>(istream &in, node&  other) {
 	}
 	other.~node();
 	new (&other) node(result, depth);
+	other.revalidate_tree();
 	return in;
 }
+
 istream& operator>>(istream &in, node *  other) {
 	in >> (*other);
 	return in;
