@@ -37,7 +37,7 @@ public:
 	void revalidate();
 	void revalidate_tree();
 	void add_to_children(node * n, bool revalidate = true);
-	void replace_with(node n);
+	void replace_child_with(size_t index_in_child_array, node * n);
 	static int descriptor_size() {
 		return (int)descriptors.size();
 	}

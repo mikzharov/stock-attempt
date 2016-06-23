@@ -146,8 +146,12 @@ void node::add_to_children(node * n, bool revalidate_) {
 	}
 }
 
-void node::replace_with(node n) {
-	this->~node();
+void node::replace_child_with(size_t index_in_child_array, node * n) {
+	if (index_in_child_array >= 0 && children.size() > index_in_child_array) {
+		n->set_tree_depth(this->depth + 1);
+		n->set_tree_stock(st);
+		children.at(index_in_child_array).reset(n);//Replaces the pointer at index_in_child_array in the children array with n
+	}
 }
 
 node * node::get_parent() {
