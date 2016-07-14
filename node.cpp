@@ -18,19 +18,27 @@ const char node::delimiter = ',';
 const char node::end_node = '`';
 vector<vector<node::descriptor>> node::descriptors;
 
-node::node(int max_depth, stock * s, int current) {
+node::node(int max_depth, stock * s, int current, int arity) {
 	value = r(-100, 100);
 	st = s;
 	this->depth = current;
 	this->parent = parent;//Sets its parent so that you can traverse the tree up and down
-	if (max_depth > 0 && current < max_depth) {
+	if ((max_depth > 0 && current < max_depth) && arity != 0) {
 		if (r(0, descriptor_size() - 1) == 0 && r(0, (int)descriptors.at(0).size() - 1) == 0) {
 			value_flag = true;
-			des.arity = 0;
+			des.arity = 0;//Made for the special case of a value node
 			des.symbol = to_string(value);
 			return;
 		}
-		des = get_random_descriptor(r(0, descriptor_size() - 1));
+		if (arity == -1 || arity >= descriptor_size()) {//Uses a random descriptor if the default value for arity is passes in
+														//Or when the arity does not exist
+			int selection = r(0, descriptor_size() - 1);
+			if (descriptors.at(selection).size() == 0) { selection = 0; }//Makes sure that it does not choose an arity with no operations in it
+			des = get_random_descriptor(selection);
+		} else {
+			if (descriptors.at(arity).size() == 0) { arity = 0; }//Makes sure that it does not choose an arity with no operations in it
+			des = get_random_descriptor(arity);
+		}
 	} else {
 		des = get_random_descriptor(0);
 	}
@@ -83,7 +91,7 @@ void node::write(vector<vector<string>>& to_write) {
 }
 
 node::descriptor node::get_random_descriptor(unsigned int arity) {
-	if (descriptors.size() > arity) {
+	if (descriptors.size() > arity && descriptors.at(arity).size() != 0) {//Makes sure that the descriptor exists
 		return descriptors.at(arity).at(r(0, (int)descriptors.at(arity).size() - 1));
 	}
 	cerr << arity << endl;
@@ -150,11 +158,31 @@ void node::replace_child_with(size_t index_in_child_array, node * n) {
 	if (index_in_child_array >= 0 && children.size() > index_in_child_array) {
 		n->set_tree_depth(this->depth + 1);
 		n->set_tree_stock(st);
+		n->set_parent(this);
 		children.at(index_in_child_array).reset(n);//Replaces the pointer at index_in_child_array in the children array with n
 	}
 }
 
-node * node::get_parent() {
+void node::shrink_mutate() {
+	node * subject = get_random_node_in_tree();
+	if (subject->get_parent() == nullptr)return;
+	node * parent = subject->get_parent();
+	parent->replace_child_with(subject->index_in_parent_children_array, new node(0, this->st, depth + 1, 0));
+}
+
+void node::subtree_mutate() {
+	node * subject = get_random_node_in_tree();//Gets the node to be replaced
+	if (subject->get_parent() == nullptr)return;//Makes sure that this node is not the root node
+	node * parent = subject->get_parent();//Gets the parent node (in order to call replace child)
+	parent->replace_child_with(subject->index_in_parent_children_array, new node(depth+6, this->st, depth + 1));//Replaces the node by using the parent
+	//This replaces a node with a randomly generated subtree
+}
+
+void node::point_mutate() {//Replaces the current operation with a new one
+	des = get_random_descriptor(des.arity);
+}
+
+node * node::get_parent() {//Returns the parent pointer, can also be used to check if the node is a root node
 	return parent;
 }
 

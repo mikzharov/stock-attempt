@@ -14,7 +14,7 @@
 class node {
 public:
 	node() {};
-	node(int, stock *, int = 0);
+	node(int max_depth, stock *, int current = 0, int arity = -1);
 	node(vector<vector<string>>& tree, int depth);
 	typedef std::vector<std::unique_ptr<node>> node::child_array;
 	double result();
@@ -38,6 +38,10 @@ public:
 	void revalidate_tree();
 	void add_to_children(node * n, bool revalidate = true);
 	void replace_child_with(size_t index_in_child_array, node * n);
+
+	void shrink_mutate();
+	void subtree_mutate();
+	void point_mutate();
 	static int descriptor_size() {
 		return (int)descriptors.size();
 	}
