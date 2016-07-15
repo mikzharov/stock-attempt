@@ -16,6 +16,7 @@
 #include "stock.h"
 #include "node.h"
 
+#include "gen_cont.h"
 #include <random>
 using namespace std;
 random_in_range b;
@@ -73,12 +74,7 @@ int main() {
 	node::add_descriptor(multiply, 2, string("*"));
 	int b = 1;
 	while(b == 1){
-		node n(5, amd.get());
-		cout << n;
-		node * a = n.get_random_node_in_tree();
-		cout << a << endl;
-		cout << a->get_index_in_parent_children_array();
-
+		
 		//Loop things below
 		cin >> b;
 		if (cin.fail()) {

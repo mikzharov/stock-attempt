@@ -26,7 +26,7 @@ public:
 		string symbol;
 	};
 	void write(vector<vector<string>>& = vector<vector<string>>());
-	descriptor get_random_descriptor(unsigned int);
+	static descriptor get_random_descriptor(unsigned int);
 	int arity();//Returns the arity of the node
 	int get_depth();//Returns the depth of the node
 	size_t get_index_in_parent_children_array();
@@ -39,9 +39,11 @@ public:
 	void add_to_children(node * n, bool revalidate = true);
 	void replace_child_with(size_t index_in_child_array, node * n);
 
-	void shrink_mutate();
+	void shrink_mutate();//These methods mutate the tree. They apply to the whole tree
 	void subtree_mutate();
 	void point_mutate();
+
+	void change_action();
 	static int descriptor_size() {
 		return (int)descriptors.size();
 	}
@@ -57,7 +59,6 @@ private:
 	int depth;
 	double value;
 	bool value_flag = false;//This flag decides whether this node is a value node
-	descriptor return_value_descriptor;
 	static vector<vector<descriptor>> descriptors;
 	child_array children;
 	descriptor des;

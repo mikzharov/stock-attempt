@@ -179,6 +179,12 @@ void node::subtree_mutate() {
 }
 
 void node::point_mutate() {//Replaces the current operation with a new one
+	node * n = get_random_node_in_tree();
+	n->change_action();
+}
+
+void node::change_action() {
+	if (des.arity == 0)return;//All sorts of funny stuff can happen when mutating an arity 0 node. Best not to
 	des = get_random_descriptor(des.arity);
 }
 
