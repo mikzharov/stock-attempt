@@ -26,5 +26,5 @@ void population::next_generation() {
 	for (int i = 0; i < pop.size(); i++) {
 		pop.at(i).evaluate();
 	}
-
+	
 }

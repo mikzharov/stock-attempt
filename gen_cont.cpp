@@ -33,7 +33,7 @@ double gen_cont::evaluate() {
 		stock_owned += stock_bought;
 		return result;
 	}
-	if (result < 0 && result < stock_owned) {//Simulates selling stock it has
+	if (result < 0 && -result < stock_owned) {//Simulates selling stock it has
 		stock_owned += (int)result;
 		money += -((int)result) * st->get_low(latest);
 		return result;

@@ -90,21 +90,10 @@ int main() {
 	node::add_descriptor(divide, 4, string("i"));
 	int b = 1;
 	while(b == 1){
-		node a(5, amd.get(), 0);
-		node c(5, amd.get(), 0);
-
-		cout << "Node A: " << endl;
-		cout << a;
-		cout << "Node B: " << endl;
-		cout << c;
-
-		a.crossover(c);
-
-		cout << "Node A: " << endl;
-		cout << a;
-		cout << "Node B: " << endl;
-		cout << c;
-
+		gen_cont a(amd.get(), 10000);
+		a.evaluate();
+		cout << "Money: " << a.get_money() << endl;
+		cout << "Stock owned: " << a.get_stock_owned() << endl;
 		//Loop things below
 		cin >> b;
 		if (cin.fail()) {
