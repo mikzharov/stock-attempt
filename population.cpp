@@ -8,8 +8,9 @@
 #include <assert.h>
 #include <memory>
 #include "gen_cont.h"
+#include <algorithm>
 
-
+random_in_range r();
 population::population(int size, int initial_worth, string stock1) {
 	st.reset(new stock(stock1));
 	this->size = size;
@@ -26,5 +27,10 @@ void population::next_generation() {
 	for (int i = 0; i < pop.size(); i++) {
 		pop.at(i).evaluate();
 	}
-	
+	std::sort(pop.begin(), pop.end());
+	size_t size = pop.size();
+
+	for (int i = 0; i < size * mutation_rate; i++) {
+		r();
+	}
 }

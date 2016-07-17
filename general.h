@@ -13,7 +13,6 @@
 #include <memory>
 #include <assert.h>
 
-using namespace std;
 namespace {
 	bool is_double(const char* str) {
 		char* endptr = 0;
@@ -24,6 +23,10 @@ namespace {
 		return true;
 	}
 }
+//Source for random number generator was originally posted on Codereview to a question I wrote
+//http://codereview.stackexchange.com/questions/101525/random-number-generation-seeding-in-c
+
+//Looking back, the question wasn't a very good one, but the new code to the previous function was, so here it is.
 class random_in_range {
 	std::mt19937 rng;
 public:

@@ -18,7 +18,7 @@
 
 #include "gen_cont.h"
 #include <random>
-using namespace std;
+
 random_in_range b;
 double rand(const node::child_array &name, stock * a) {
 	return b(0,1);
