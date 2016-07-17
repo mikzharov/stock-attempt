@@ -15,7 +15,6 @@
 class gen_cont {//Genetic container
 public:
 	gen_cont(stock * st, double money);
-	~gen_cont();
 	double get_money() const;
 	int get_stock_owned() const;
 	double get_result() const;

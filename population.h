@@ -11,15 +11,17 @@
 #include <sstream>
 #include <assert.h>
 #include <memory>
-#include "node.h"
+#include "gen_cont.h"
 class population {
 public:
-	population();
+	population(int size, int initial_worth, string stock);
 	~population();
+	void next_generation();
 private:
-	vector<node> pop;
-	double mutation_rate;
-	double breed_rate;
+	int size = 0;
+	vector<gen_cont> pop;
+	double mutation_rate = 0.02;
+	double crossover_rate = 0.05;
 	unique_ptr<stock> st;
 };
 

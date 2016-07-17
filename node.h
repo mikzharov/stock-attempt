@@ -14,6 +14,7 @@
 class node {
 public:
 	node() {};
+	void init(int max_depth, stock *, int current = 0, int arity = -1);
 	node(int max_depth, stock *, int current = 0, int arity = -1);
 	node(vector<vector<string>>& tree, int depth);
 	typedef std::vector<std::unique_ptr<node>> node::child_array;
@@ -26,9 +27,12 @@ public:
 		string symbol;
 	};
 	void write(vector<vector<string>>& = vector<vector<string>>());
-	static descriptor get_random_descriptor(unsigned int);
+	
 	int arity();//Returns the arity of the node
 	int get_depth();//Returns the depth of the node
+	void release(size_t index);
+	void make_value();
+
 	size_t get_index_in_parent_children_array();
 	void set_index_in_parent_children_array(size_t i);
 	void set_tree_depth(int depth = 0);//Sets the deoth of the node and it's children correctly (where each child it 1 deeper than the parent)
@@ -43,6 +47,8 @@ public:
 	void subtree_mutate();
 	void point_mutate();
 
+	void crossover(node &n);
+
 	void change_action();
 	static int descriptor_size() {
 		return (int)descriptors.size();
@@ -54,6 +60,7 @@ public:
 	const static char delimiter;
 	const static char end_node;
 private:
+	void set_random_descriptor(unsigned int);
 	node * parent = nullptr;
 	size_t index_in_parent_children_array = 0;
 	int depth;

@@ -8,10 +8,6 @@ gen_cont::gen_cont(stock * st, double money) {
 	this->money = money;
 }
 
-
-gen_cont::~gen_cont() {
-}
-
 double gen_cont::get_money() const {
 	return money;
 }

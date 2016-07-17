@@ -59,6 +59,20 @@ double multiply(const node::child_array &name, stock * a) {
 	}
 	return name.at(0)->result() * name.at(1)->result();
 }
+double divide(const node::child_array &name, stock * a) {
+	if (name.size() < 2) {
+		return 0.0;
+	}
+	if (name.at(1)->result() == 0) return 0;
+	return name.at(0)->result() / name.at(1)->result();
+}
+double i(const node::child_array &name, stock * a) {
+	if (name.size() < 4) {
+		return 0.0;
+	}
+	if (name.at(0)->result() < name.at(1)->result()) return name.at(3)->result();
+	return name.at(4)->result();
+}
 int main() {
 	
 	unique_ptr<stock> amd = make_unique<stock>("AMD");
@@ -69,12 +83,28 @@ int main() {
 	node::add_descriptor(volume, 1, string("volume"));
 	node::add_descriptor(close, 1, string("close"));
 	node::add_descriptor(close, 1, string("close"));
-	node::add_descriptor(rand, 0, string("rand0-1"));
+	//node::add_descriptor(rand, 0, string("rand0-1"));
 	node::add_descriptor(add, 2, string("+"));
 	node::add_descriptor(multiply, 2, string("*"));
+	node::add_descriptor(divide, 2, string("/"));
+	node::add_descriptor(divide, 4, string("i"));
 	int b = 1;
 	while(b == 1){
-		
+		node a(5, amd.get(), 0);
+		node c(5, amd.get(), 0);
+
+		cout << "Node A: " << endl;
+		cout << a;
+		cout << "Node B: " << endl;
+		cout << c;
+
+		a.crossover(c);
+
+		cout << "Node A: " << endl;
+		cout << a;
+		cout << "Node B: " << endl;
+		cout << c;
+
 		//Loop things below
 		cin >> b;
 		if (cin.fail()) {

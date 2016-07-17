@@ -18,39 +18,40 @@ const char node::delimiter = ',';
 const char node::end_node = '`';
 vector<vector<node::descriptor>> node::descriptors;
 
-node::node(int max_depth, stock * s, int current, int arity) {
+void node::init(int max_depth, stock * s, int current, int arity) {
 	value = r(-100, 100);
 	st = s;
 	this->depth = current;
-	this->parent = parent;//Sets its parent so that you can traverse the tree up and down
 	if ((max_depth > 0 && current < max_depth) && arity != 0) {
-		if (r(0, descriptor_size() - 1) == 0 && r(0, (int)descriptors.at(0).size() - 1) == 0) {
+		//Prevents from running and producing a leaf when the depth is 0, can make leaves when the depth is not 0
+		if (depth != 0 && r(0, descriptor_size() - 1) == 0 && (descriptors.at(0).size() == 0 || r(0, (int)descriptors.at(0).size() - 1) == 0)) {
 			value_flag = true;
 			des.arity = 0;//Made for the special case of a value node
 			des.symbol = to_string(value);
 			return;
 		}
-		if (arity == -1 || arity >= descriptor_size()) {//Uses a random descriptor if the default value for arity is passes in
-														//Or when the arity does not exist
+		if (arity == -1) {
 			int selection = r(0, descriptor_size() - 1);
-			if (descriptors.at(selection).size() == 0) { selection = 0; }//Makes sure that it does not choose an arity with no operations in it
-			des = get_random_descriptor(selection);
+			if (depth == 0 && selection == 0)selection = 2;
+			set_random_descriptor(selection);
 		} else {
-			if (descriptors.at(arity).size() == 0) { arity = 0; }//Makes sure that it does not choose an arity with no operations in it
-			des = get_random_descriptor(arity);
+			set_random_descriptor(arity);
 		}
 	} else {
-		des = get_random_descriptor(0);
+		set_random_descriptor(0);
 	}
 	for (int i = 0; i < des.arity; i++) {
 		add_to_children(new node(max_depth, s, current + 1), false);
 	}
-	if(current == 0)
-	revalidate_tree();
+	if (current == 0)
+		revalidate_tree();
+}
+
+node::node(int max_depth, stock * s, int current, int arity) {
+	init(max_depth, s, current, arity);
 }
 
 node::node(vector<vector<string>> &n, int depth) {
-	this->parent = parent;
 	if (n.size() == 0) {
 		throw exception("Vector of vectors is 0");
 	}
@@ -90,12 +91,22 @@ void node::write(vector<vector<string>>& to_write) {
 	}
 }
 
-node::descriptor node::get_random_descriptor(unsigned int arity) {
+void node::set_random_descriptor(unsigned int arity) {
 	if (descriptors.size() > arity && descriptors.at(arity).size() != 0) {//Makes sure that the descriptor exists
-		return descriptors.at(arity).at(r(0, (int)descriptors.at(arity).size() - 1));
+		des = descriptors.at(arity).at(r(0, (int)descriptors.at(arity).size() - 1));
+		return;
 	}
-	cerr << arity << endl;
-	throw exception();
+	if (depth == 0) {
+		arity = 2;
+	} else {
+		make_value();
+		return;
+	}
+	if (descriptors.size() > arity && descriptors.at(arity).size() != 0) {//Tries again to make sure no leaves are make at depth 0
+		des = descriptors.at(arity).at(r(0, (int)descriptors.at(arity).size() - 1));
+		return;
+	}
+	make_value();
 }
 
 int node::arity() {
@@ -105,6 +116,18 @@ int node::arity() {
 
 int node::get_depth() {
 	return depth;
+}
+
+void node::release(size_t index) {
+	children.at(index).release();
+}
+
+void node::make_value() {
+	value = r(-100, 100);
+	value_flag = true;
+	des.arity = 0;//Made for the special case of a value node
+	des.symbol = to_string(value);
+	return;
 }
 
 size_t node::get_index_in_parent_children_array() {
@@ -171,6 +194,10 @@ void node::shrink_mutate() {
 }
 
 void node::subtree_mutate() {
+	if (des.arity == 0) {
+		init(5, st, 0);
+		return;
+	}
 	node * subject = get_random_node_in_tree();//Gets the node to be replaced
 	if (subject->get_parent() == nullptr)return;//Makes sure that this node is not the root node
 	node * parent = subject->get_parent();//Gets the parent node (in order to call replace child)
@@ -183,9 +210,31 @@ void node::point_mutate() {//Replaces the current operation with a new one
 	n->change_action();
 }
 
+void node::crossover(node & n) {
+	node * subject = get_random_node_in_tree();
+	if (subject->get_parent() == nullptr)return;
+	node * parent = subject->get_parent();
+
+	node * subject1 = n.get_random_node_in_tree();
+	if (subject1->get_parent() == nullptr)return;
+	node * parent1 = subject1->get_parent();
+
+	size_t index = subject->get_index_in_parent_children_array();
+	size_t index1 = subject1->get_index_in_parent_children_array();
+
+	parent->release(index);
+	parent1->release(index1);
+
+	parent->replace_child_with(index, subject1);
+	parent->revalidate_tree();
+
+	parent1->replace_child_with(index1, subject);
+	parent1->revalidate_tree();
+}
+
 void node::change_action() {
 	if (des.arity == 0)return;//All sorts of funny stuff can happen when mutating an arity 0 node. Best not to
-	des = get_random_descriptor(des.arity);
+	set_random_descriptor(des.arity);
 }
 
 node * node::get_parent() {//Returns the parent pointer, can also be used to check if the node is a root node
