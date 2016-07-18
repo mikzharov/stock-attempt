@@ -12,6 +12,7 @@
 #include <assert.h>
 #include "general.h"
 #include "general.cpp"
+#include <algorithm>
 
 const char node::delimiter = ',';
 const char node::end_node = '`';
@@ -24,7 +25,7 @@ void node::init(int max_size, stock * s) {
 		leaves.push_back(r(-100, 100));
 	}
 	for (int i = 0; i < max_size; i++) {
-		children.push_back(get_random_descriptor());
+		children.push_back(std::make_unique<descriptor>(get_random_descriptor()));
 	}
 }
 
@@ -35,9 +36,11 @@ node::node(int max_depth, stock * s) {
 double node::result() {
 	cache.clear();
 	cache.insert(cache.end(), leaves.begin(), leaves.end());
-	for (size_t i = children.size() - 1; i > 0; i--) {
-		double res = children.at(i).a(cache, st);
-		cache.push_front(res);
+	if (children.size() != 0) {
+		for (size_t i = children.size() - 1; i > 0; i--) {
+			double res = children.at(i)->a(cache, st);
+			cache.push_front(res);
+		}
 	}
 	return cache.at(0);
 }
@@ -48,9 +51,18 @@ void node::write(ostream & out) {
 	}
 	out << endl;
 	for (int i = 0; i < children.size(); i++) {
-		out << children.at(i).symbol << delimiter;
+		out << children.at(i)->symbol << delimiter;
 	}
 	out << endl << end_node <<endl;
+}
+
+void node::delete_mutate() {
+	if(children.size() != 0)
+	children.erase(children.begin() + r(0, (int)children.size() - 1));
+}
+
+void node::add_mutate() {
+	children.push_back(std::make_unique<descriptor>(get_random_descriptor()));
 }
 
 void node::all_mutate() {
@@ -60,7 +72,19 @@ void node::all_mutate() {
 		leaves.at(r(0, (int)leaves.size() - 1)) = r(-100, 100);
 		break;
 	case 1:
-		children.at(r(0, (int)children.size() - 1)) = get_random_descriptor();
+		a = r(0, 2);
+		switch (a) {
+		case 0:
+			if(children.size() != 0)
+			children.at(r(0, (int)children.size() - 1)) = make_unique<descriptor>(get_random_descriptor());
+			break;
+		case 1:
+			add_mutate();
+			break;
+		case 2:
+			delete_mutate();
+			break;
+		}
 		break;
 	}
 }
@@ -92,6 +116,32 @@ node::descriptor node::get_random_descriptor(size_t arity) {
 	if (arity == -1) arity = r(0, (int)descriptors.size() - 1);
 	if (descriptors.at(arity).size() <= 0) arity = 1;
 	return descriptors.at(arity).at(r(0, (int)descriptors.at(arity).size() - 1));
+}
+
+void node::crossover(node * other) {
+	int lowest_size = std::min((int)other->children.size(), (int)children.size());
+	
+	int start = r(0, lowest_size);
+	int end = r(start, lowest_size);
+
+	descriptor * temp;
+	for (int i = start; i < end; i++) {
+		temp = children.at(i).release();
+		children.at(i).reset(other->children.at(i).release());
+		other->children.at(i).reset(temp);
+	}
+
+	lowest_size = std::min((int)other->leaves.size(), (int)leaves.size());
+
+	start = r(0, lowest_size);
+	end = r(start, lowest_size);
+
+	double temp_l;
+	for (int i = start; i > 0 && i < end - 1; i++) {
+		temp_l = leaves.at(i);
+		leaves.at(i) = other->leaves.at(i);
+		other->leaves.at(i) = temp_l;
+	}
 }
 
 ostream& operator<<(ostream &out, node&  other) {

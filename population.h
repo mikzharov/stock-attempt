@@ -16,7 +16,7 @@ class population {
 public:
 	population(int size, int initial_worth, string stock);
 	~population();
-	void next_generation();
+	void next_day();
 	void simulate();
 	int generations = 0;
 private:

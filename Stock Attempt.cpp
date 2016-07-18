@@ -84,21 +84,22 @@ int main() {
 	node::add_descriptor(open, 1, string("open"));
 	node::add_descriptor(volume, 1, string("volume"));
 	node::add_descriptor(close, 1, string("close"));
-	node::add_descriptor(close, 1, string("close"));
-	node::add_descriptor(rand, 0, string("c0"));
+	//node::add_descriptor(rand, 0, string("c0"));
 	node::add_descriptor(add, 2, string("+"));
 	node::add_descriptor(multiply, 2, string("*"));
 	node::add_descriptor(divide, 2, string("/"));
-	node::add_descriptor(divide, 4, string("i"));
+	node::add_descriptor(i, 4, string("i"));
 	int b = 1;
 	while(b == 1){
-		node a(10, amd.get());
-		cout << a;
-		cout << a.result() << endl;
+		//gen_cont a(10000, amd.get());
+		//a.evaluate();
+		//cout << "Money: " << a.get_money() << endl;
+		//cout << "Stock Owned: " << a.get_stock_owned() << endl;
 
-		//population a(5000, 10000, "AMD");
-		//a.generations = 1000;
-		//a.simulate();
+
+		population a(10000, 10000, "AMD");
+		a.generations = 25000;
+		a.simulate();
 
 
 

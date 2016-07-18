@@ -23,14 +23,17 @@ public:
 	};
 
 	node() {};
-	void init(int max_depth, stock *);
-	node(int max_depth, stock *);
+	void init(int max_size, stock *);
+	node(int max_size, stock *);
 	
 	double result();
 
 	void write(ostream &out);
 
+	void delete_mutate();
+	void add_mutate();
 	void all_mutate();
+
 	static int descriptor_size() {
 		return (int)descriptors.size();
 	}
@@ -39,10 +42,12 @@ public:
 	const static char end_node;
 
 	static descriptor get_random_descriptor(size_t = -1);
+
+	void crossover(node * other);
 private:
 	static vector<vector<descriptor>> descriptors;
 
-	vector<descriptor> children;
+	vector<unique_ptr<descriptor>> children;
 	vector<double> leaves;
 	child_array cache;
 

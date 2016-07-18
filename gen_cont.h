@@ -14,7 +14,7 @@
 #include "node.h"
 class gen_cont {//Genetic container
 public:
-	gen_cont(stock * st, double money);
+	gen_cont(double money, stock * st);
 	double get_money() const;
 	int get_stock_owned() const;
 	double get_result() const;
@@ -25,6 +25,10 @@ public:
 	}
 	double result = 0;
 	unique_ptr<node> n;
+	void reset() {
+		money = 0;
+		stock_owned = 0;
+	}
 private:
 	double fitness = 0;
 	stock * st;
