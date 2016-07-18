@@ -2,7 +2,7 @@
 #include "gen_cont.h"
 
 gen_cont::gen_cont(stock * st, double money) {
-	n.reset(new node(0, st, 0));
+	n.reset(new node(0, st));
 	this->st = st;
 	this->money = money;
 }
@@ -43,4 +43,8 @@ double gen_cont::evaluate() {
 		return result;
 	}
 	return result;
+}
+
+void gen_cont::update_fitness() {
+	fitness = stock_owned * st->get_low(latest) + money;
 }

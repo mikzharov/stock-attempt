@@ -6,12 +6,12 @@ using namespace std;
 class quote {
 public:
 	struct stock_data {
-		double open;
-		double high;
-		double low;
-		double close;
-		double volume;
-		double adjusted;
+		double open = 0.0;
+		double high = 0.0;
+		double low = 0.0;
+		double close = 0.0;
+		double volume = 0.0;
+		double adjusted = 0.0;
 		string date;
 	};
 	vector<stock_data> data;
@@ -27,78 +27,30 @@ public:
 
 	
 	//below are overloads to get past data. Also checks that the data index is not negative
-	double get_open(int past = 0) const{
-		int index = array_index;
-		if (past == latest) {
-			index = 0;
-			past = 0;
-		}
+	quote::stock_data get(int past) const {
 		if (array_index + past < length && past >= 0)
-			return content[symbol_index_int].data[index + past].open;
-		else return 0; 
+			return content[symbol_index_int].data[array_index + past];
+		else return quote::stock_data();
+	}
+	double get_open(int past) const{
+		return get(past).open;
 	}
 	double get_high(int past = 0) const{
-		int index = array_index;
-		if (past == latest) {
-			index = 0;
-			past = 0;
-		}
-		if (array_index + past < length && past >= 0)
-			return content[symbol_index_int].data[index + past].high;
-		else return 0;
+		return get(past).high;
 	}
 	double get_low(int past = 0) const{
-		int index = array_index;
-		if (past == latest) {
-			index = 0;
-			past = 0;
-		}
-		if (array_index + past < length && past >= 0)
-			return content[symbol_index_int].data[index + past].low;
-		else return 0; 
+		return get(past).low;
 	}
 	double get_close(int past = 0) const {
-		int index = array_index;
-		if (past == latest) {
-			index = 0;
-			past = 0;
-		}
-		if (array_index + past < length  && past >= 0)
-			return content[symbol_index_int].data[index + past].close;
-		else return 0;
+		return get(past).close;
 	}
 	double get_volume(int past = 0) const {
-		int index = array_index;
-		if (past == latest) {
-			index = 0;
-			past = 0;
-		}
-		if (array_index + past < length && past >= 0)
-			return content[symbol_index_int].data[index + past].volume;
-		else return 0;
+		return get(past).volume;
 	}
 	double get_adjusted(int past = 0) const {
-		int index = array_index;
-		if (past == latest) {
-			index = 0;
-			past = 0;
-		}
-		if (array_index + past < length && past >= 0)
-			return content[symbol_index_int].data[index + past].adjusted;
-		else return 0; 
+		return get(past).adjusted;
 	}
-	quote::stock_data get_stock_data(int past = 0) {
-		int index = array_index;
-		if (past == latest) {
-			index = 0;
-			past = 0;
-		}
-		if (array_index + past < length && past >= 0) {
-			return content[symbol_index_int].data[index + past];
-		} else {
-			return content[symbol_index_int].data[index];
-		}
-	}
+
 	void reset() {
 		array_index = length - 1;//This sets the array index to the first entry
 	}

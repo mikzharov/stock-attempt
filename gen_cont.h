@@ -19,18 +19,17 @@ public:
 	int get_stock_owned() const;
 	double get_result() const;
 	double evaluate();
+	void update_fitness();
 	bool operator < (const gen_cont& con) {
 		return (fitness < con.fitness);
 	}
-
-	double fitness = 0;
 	double result = 0;
 	unique_ptr<node> n;
 private:
+	double fitness = 0;
 	stock * st;
 	int stock_owned = 0;
 	double money = 0;//Money probably shouldn't be a double
-	
 };
 
 
