@@ -23,15 +23,16 @@ public:
 	typedef double(*action)(const child_array&, stock *);
 	struct descriptor {
 		action a;
-		int arity;
+		size_t arity;
 		string symbol;
 	};
 	void write(vector<vector<string>>& = vector<vector<string>>());
 	
-	int arity();//Returns the arity of the node
+	size_t arity();//Returns the arity of the node
 	int get_depth();//Returns the depth of the node
 	void release(size_t index);
 	void make_value();
+	int count();
 
 	size_t get_index_in_parent_children_array();
 	void set_index_in_parent_children_array(size_t i);
@@ -47,7 +48,9 @@ public:
 	void subtree_mutate();
 	void point_mutate();
 
-	void crossover(node &n);
+	void all_mutate();
+
+	void crossover(node * n);
 
 	void change_action();
 	static int descriptor_size() {
@@ -59,8 +62,13 @@ public:
 	node * get_parent();
 	const static char delimiter;
 	const static char end_node;
+	string created_by = "1|";
+
+	void set_depth(int depth) { this->depth = depth; };
+
+	int max_depth();
 private:
-	void set_random_descriptor(unsigned int);
+	void set_random_descriptor(size_t);
 	node * parent = nullptr;
 	size_t index_in_parent_children_array = 0;
 	int depth;

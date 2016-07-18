@@ -20,14 +20,17 @@ public:
 	double get_result() const;
 	double evaluate();
 	bool operator < (const gen_cont& con) {
-		return (money + result < (con.get_money() + con.result));
+		return (fitness < con.fitness);
 	}
+
+	double fitness = 0;
+	double result = 0;
+	unique_ptr<node> n;
 private:
 	stock * st;
 	int stock_owned = 0;
 	double money = 0;//Money probably shouldn't be a double
-	double result = 0;
-	unique_ptr<node> n;
+	
 };
 
 

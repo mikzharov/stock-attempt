@@ -1,6 +1,5 @@
+#pragma once
 #include "gen_cont.h"
-
-
 
 gen_cont::gen_cont(stock * st, double money) {
 	n.reset(new node(0, st, 0));

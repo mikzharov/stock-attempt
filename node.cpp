@@ -13,21 +13,22 @@
 #include "general.h"
 #include "general.cpp"
 
-random_in_range r;
 const char node::delimiter = ',';
 const char node::end_node = '`';
 vector<vector<node::descriptor>> node::descriptors;
-
+random_in_range r;
 void node::init(int max_depth, stock * s, int current, int arity) {
 	value = r(-100, 100);
+	des.arity = 0;
 	st = s;
 	this->depth = current;
 	if ((max_depth > 0 && current < max_depth) && arity != 0) {
 		//Prevents from running and producing a leaf when the depth is 0, can make leaves when the depth is not 0
-		if (depth != 0 && r(0, descriptor_size() - 1) == 0 && (descriptors.at(0).size() == 0 || r(0, (int)descriptors.at(0).size() - 1) == 0)) {
+		if (r(0, descriptor_size() - 1) == 0 && (descriptors.at(0).size() == 0 || r(0, (int)descriptors.at(0).size() - 1) == 0)) {
 			value_flag = true;
 			des.arity = 0;//Made for the special case of a value node
 			des.symbol = to_string(value);
+			created_by += "init,value|";
 			return;
 		}
 		if (arity == -1) {
@@ -91,26 +92,33 @@ void node::write(vector<vector<string>>& to_write) {
 	}
 }
 
-void node::set_random_descriptor(unsigned int arity) {
+int node::max_depth() {
+	int b = depth;
+	for (int i = 0; i < children.size(); i++) {
+		b = children.at(i)->count();
+	}
+	return b;
+}
+
+void node::set_random_descriptor(size_t arity) {
+	value_flag = false;
 	if (descriptors.size() > arity && descriptors.at(arity).size() != 0) {//Makes sure that the descriptor exists
 		des = descriptors.at(arity).at(r(0, (int)descriptors.at(arity).size() - 1));
-		return;
-	}
-	if (depth == 0) {
-		arity = 2;
-	} else {
-		make_value();
+		created_by += "srd1|";
 		return;
 	}
 	if (descriptors.size() > arity && descriptors.at(arity).size() != 0) {//Tries again to make sure no leaves are make at depth 0
+		created_by += "srd2|";
 		des = descriptors.at(arity).at(r(0, (int)descriptors.at(arity).size() - 1));
 		return;
 	}
 	make_value();
 }
 
-int node::arity() {
-	assert(des.arity == children.size());
+size_t node::arity() {
+	if (des.arity != children.size()) {
+		des.arity = children.size();
+	}
 	return des.arity;
 }
 
@@ -127,7 +135,16 @@ void node::make_value() {
 	value_flag = true;
 	des.arity = 0;//Made for the special case of a value node
 	des.symbol = to_string(value);
+	created_by += "mkv|";
 	return;
+}
+
+int node::count() {
+	int b = 0;
+	for (int i = 0; i < children.size(); i++) {
+		b += children.at(i)->count();
+	}
+	return b;
 }
 
 size_t node::get_index_in_parent_children_array() {
@@ -140,7 +157,8 @@ void node::set_index_in_parent_children_array(size_t i) {
 
 void node::set_tree_depth(int depth) {
 	this->depth = depth;//Sets it's own depth
-	for (size_t i = 0; i < children.size(); i++) {//Cycles through the children array and sets their depth
+	if (depth > 1000)parent->shrink_mutate();
+	for (int i = 0; i < children.size(); i++) {//Cycles through the children array and sets their depth
 		children.at(i)->set_tree_depth(depth + 1);//The child's depth is 1 deeper than the parents depth
 	}
 }
@@ -160,6 +178,7 @@ void node::revalidate() {
 	for (size_t i = 0; i < children.size(); i++) {
 		children.at(i)->set_parent(this);
 		children.at(i)->set_index_in_parent_children_array(i);
+		children.at(i)->set_depth(depth + 1);
 	}
 }
 
@@ -178,16 +197,15 @@ void node::add_to_children(node * n, bool revalidate_) {
 }
 
 void node::replace_child_with(size_t index_in_child_array, node * n) {
-	if (index_in_child_array >= 0 && children.size() > index_in_child_array) {
-		n->set_tree_depth(this->depth + 1);
-		n->set_tree_stock(st);
-		n->set_parent(this);
-		children.at(index_in_child_array).reset(n);//Replaces the pointer at index_in_child_array in the children array with n
-	}
+	children.at(index_in_child_array).reset(n);//Replaces the pointer at index_in_child_array in the children array with n
+	children.at(index_in_child_array)->set_tree_depth(this->depth + 1);
+	children.at(index_in_child_array)->set_tree_stock(st);
+	children.at(index_in_child_array)->set_parent(this);
 }
 
 void node::shrink_mutate() {
 	node * subject = get_random_node_in_tree();
+	if (subject == nullptr)return;
 	if (subject->get_parent() == nullptr)return;
 	node * parent = subject->get_parent();
 	parent->replace_child_with(subject->index_in_parent_children_array, new node(0, this->st, depth + 1, 0));
@@ -210,12 +228,30 @@ void node::point_mutate() {//Replaces the current operation with a new one
 	n->change_action();
 }
 
-void node::crossover(node & n) {
+void node::all_mutate() {
+	int i = r(0, 2);
+	switch (i) {
+	case 0:
+		shrink_mutate();
+		break;
+	case 1:
+		subtree_mutate();
+		break;
+	case 2:
+		point_mutate();
+		break;
+	}
+	revalidate_tree();
+}
+
+void node::crossover(node * n) {
+	revalidate_tree();
 	node * subject = get_random_node_in_tree();
 	if (subject->get_parent() == nullptr)return;
 	node * parent = subject->get_parent();
 
-	node * subject1 = n.get_random_node_in_tree();
+	n->revalidate_tree();
+	node * subject1 = n->get_random_node_in_tree();
 	if (subject1->get_parent() == nullptr)return;
 	node * parent1 = subject1->get_parent();
 
@@ -226,15 +262,20 @@ void node::crossover(node & n) {
 	parent1->release(index1);
 
 	parent->replace_child_with(index, subject1);
-	parent->revalidate_tree();
-
 	parent1->replace_child_with(index1, subject);
+
+	parent->revalidate_tree();
 	parent1->revalidate_tree();
 }
 
 void node::change_action() {
-	if (des.arity == 0)return;//All sorts of funny stuff can happen when mutating an arity 0 node. Best not to
-	set_random_descriptor(des.arity);
+	size_t inv = arity();
+	if (inv == 0) return;
+	if (inv >= -1) {
+		cout << inv;
+		throw exception("AAAAAAA"); 
+	}//All sorts of funny stuff can happen when mutating an arity 0 node. Best not to
+	set_random_descriptor(inv);
 }
 
 node * node::get_parent() {//Returns the parent pointer, can also be used to check if the node is a root node
@@ -282,6 +323,7 @@ vector<vector<string>> node::node_graph_from_stream(istream &in) {
 }
 
 node * node::get_random_node_in_tree(node * current) {
+	if (this == nullptr) return nullptr;
 	int chance = r(0, depth);
 	if (chance == 0 || current == nullptr) {
 		current = this;
@@ -289,7 +331,7 @@ node * node::get_random_node_in_tree(node * current) {
 	if (current->arity() == 0 || arity() == 0) {
 		return current;
 	}
-	int index = r(0, des.arity - 1);
+	int index = r(0, (int)arity() - 1);
 	return children.at(index)->get_random_node_in_tree(current);
 }
 
