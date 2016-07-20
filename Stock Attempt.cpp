@@ -96,9 +96,8 @@ int main() {
 		//cout << "Money: " << a.get_money() << endl;
 		//cout << "Stock Owned: " << a.get_stock_owned() << endl;
 
-
 		population a(10000, 10000, "AMD");
-		a.generations = 25000;
+		a.generations = 250;
 		a.simulate();
 
 

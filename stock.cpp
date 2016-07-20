@@ -134,6 +134,7 @@ void stock::get_values(string symbol) {
 bool stock::next_day() {
 
 	if(array_index != 0){
+		day_since_start++;
 		array_index--;
 		return true;
 	}

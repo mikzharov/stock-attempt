@@ -17,8 +17,11 @@ public:
 	vector<stock_data> data;
 };
 class stock {
+private:
+	static vector<string> symbol_index;
+	int array_index;//The current entry being operated on
 public:
-
+	int day_since_start = 0;
 	stock() {};
 	stock(string symbol);
 	void get_values(string a);
@@ -55,10 +58,9 @@ public:
 		array_index = length - 1;//This sets the array index to the first entry
 	}
 	string symbol;//This is the stock symbol
-	int array_index;//The current entry being operated on
-	unsigned int symbol_index_int;
+	unsigned int symbol_index_int;//Defines in which index the content is
 	static vector<quote> content;//All the quotes
-	static vector<string> symbol_index;
+	
 	const string url_base = "http://real-chart.finance.yahoo.com/table.csv?s=";
 	vector<string> initialize();
 };
