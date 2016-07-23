@@ -74,15 +74,15 @@
   <PropertyGroup Label="UserMacros" />
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
     <LinkIncremental>true</LinkIncremental>
-    <LibraryPath>C:\Users\Misha\Desktop\C++\curl\lib;$(WindowsSDK_LibraryPath_x86);$(VC_LibraryPath_x86);$(NETFXKitsDir)Lib\um\x86;$(LibraryPath)</LibraryPath>
+    <LibraryPath>C:\Users\Misha\Desktop\C++\curl\lib;$(WindowsSDK_LibraryPath_x86);$(VC_LibraryPath_x86);$(NETFXKitsDir)Lib\um\x86;C:\Program Files\NVIDIA GPU Computing Toolkit\CUDA\v7.5\lib\Win32;$(LibraryPath)</LibraryPath>
     <ReferencePath>$(ReferencePath)</ReferencePath>
-    <IncludePath>C:\Users\Misha\Desktop\C++\curl\include;$(IncludePath)</IncludePath>
+    <IncludePath>C:\Users\Misha\Desktop\C++\curl\include;C:\Program Files\NVIDIA GPU Computing Toolkit\CUDA\v7.5\include;$(IncludePath)</IncludePath>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
     <LinkIncremental>true</LinkIncremental>
-    <LibraryPath>C:\Users\Misha\Desktop\C++\curl\lib;$(WindowsSdkDir)\lib;$(WindowsSDK_LibraryPath_x64);$(VC_LibraryPath_x64);$(NETFXKitsDir)Lib\um\x64;$(LibraryPath)</LibraryPath>
+    <LibraryPath>C:\Users\Misha\Desktop\C++\curl\lib;$(WindowsSdkDir)\lib;$(WindowsSDK_LibraryPath_x64);$(VC_LibraryPath_x64);$(NETFXKitsDir)Lib\um\x64;$(LibraryPath);C:\Program Files\NVIDIA GPU Computing Toolkit\CUDA\v7.5\lib\x64</LibraryPath>
     <ReferencePath>$(ReferencePath)</ReferencePath>
-    <IncludePath>C:\Users\Misha\Desktop\C++\curl\include;$(IncludePath)</IncludePath>
+    <IncludePath>C:\Users\Misha\Desktop\C++\curl\include;$(IncludePath);C:\Program Files\NVIDIA GPU Computing Toolkit\CUDA\v7.5\include</IncludePath>
     <ExcludePath>$(VC_IncludePath);$(WindowsSDK_IncludePath);$(MSBuild_ExecutablePath);$(VC_LibraryPath_x64);</ExcludePath>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
@@ -110,7 +110,7 @@
     <Link>
       <SubSystem>Console</SubSystem>
       <GenerateDebugInformation>true</GenerateDebugInformation>
-      <AdditionalDependencies>libssh2.a;libssl.a;libcrypto.a;libcurldll.a;kernel32.lib;user32.lib;gdi32.lib;winspool.lib;comdlg32.lib;advapi32.lib;shell32.lib;ole32.lib;oleaut32.lib;uuid.lib;odbc32.lib;odbccp32.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalDependencies>libssh2.a;libssl.a;libcrypto.a;libcurldll.a;kernel32.lib;user32.lib;gdi32.lib;winspool.lib;comdlg32.lib;advapi32.lib;shell32.lib;ole32.lib;oleaut32.lib;uuid.lib;odbc32.lib;odbccp32.lib;OpenCL.lib;%(AdditionalDependencies)</AdditionalDependencies>
     </Link>
     <ProjectReference>
       <LinkLibraryDependencies>false</LinkLibraryDependencies>
@@ -130,7 +130,7 @@
     <Link>
       <SubSystem>Console</SubSystem>
       <GenerateDebugInformation>true</GenerateDebugInformation>
-      <AdditionalDependencies>libssh2.a;libssl.a;libcrypto.a;libcurldll.a;kernel32.lib;user32.lib;gdi32.lib;winspool.lib;comdlg32.lib;advapi32.lib;shell32.lib;ole32.lib;oleaut32.lib;uuid.lib;odbc32.lib;odbccp32.lib</AdditionalDependencies>
+      <AdditionalDependencies>libssh2.a;libssl.a;libcrypto.a;libcurldll.a;kernel32.lib;user32.lib;gdi32.lib;winspool.lib;comdlg32.lib;advapi32.lib;shell32.lib;ole32.lib;oleaut32.lib;uuid.lib;odbc32.lib;odbccp32.lib;OpenCL.lib</AdditionalDependencies>
       <AdditionalLibraryDirectories>$(WindowsSdkDir)\lib</AdditionalLibraryDirectories>
       <StackReserveSize>8000000</StackReserveSize>
     </Link>

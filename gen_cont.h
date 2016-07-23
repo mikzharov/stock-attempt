@@ -29,6 +29,7 @@ public:
 		money = 0;
 		stock_owned = 0;
 	}
+	string compile();
 private:
 	double fitness = 0;
 	stock * st;

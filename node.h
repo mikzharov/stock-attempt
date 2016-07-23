@@ -15,9 +15,8 @@
 class node {
 public:
 	typedef deque<double> child_array;
-	typedef double(*action)(child_array&, stock *);
 	struct descriptor {
-		action a;
+		string a;
 		size_t arity;
 		string symbol;
 	};
@@ -25,8 +24,6 @@ public:
 	node() {};
 	void init(int max_size, stock *);
 	node(int max_size, stock *);
-	
-	double result();
 
 	void write(ostream &out);
 
@@ -37,20 +34,17 @@ public:
 	static int descriptor_size() {
 		return (int)descriptors.size();
 	}
-	static void add_descriptor(action a, unsigned int arity, const string &symbol);
+	static void add_descriptor(string a, unsigned int arity, const string &symbol);
 	const static char delimiter;
 	const static char end_node;
 
 	static descriptor get_random_descriptor(size_t = -1);
 
 	void crossover(node * other);
-private:
-	static vector<vector<descriptor>> descriptors;
-
 	vector<unique_ptr<descriptor>> children;
 	vector<double> leaves;
-	child_array cache;
-
+private:
+	static vector<vector<descriptor>> descriptors;
 	stock * st;
 };
 ostream& operator<<(ostream &out, node&  other);

@@ -23,7 +23,7 @@ public:
 	~population();
 	void next_day();
 	void simulate();
-	void init_opencl();
+	void init_opencl(ostream * log = nullptr);
 	int generations = 0;
 	inline void cl_error(cl_int error, string desc) {
 		if (error != CL_SUCCESS) {

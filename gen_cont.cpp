@@ -20,6 +20,7 @@ double gen_cont::get_result() const {
 }
 
 double gen_cont::evaluate() {
+	/*
 	result = n->result();
 	if (result * st->get_high(latest) < money && result >= 0) {//Simulates the program buying / selling stock if it has enough money
 		money -= result * st->get_high(latest);
@@ -43,8 +44,31 @@ double gen_cont::evaluate() {
 		return result;
 	}
 	return result;
+	*/
+	return 0.0;
 }
 
 void gen_cont::update_fitness() {
 	fitness = stock_owned * st->get_low(latest) + money;
+}
+
+string header = 
+"__kernel void GENINDIV (__global float* adjusted_buf, __global float* close_buf, __global float* high_buf, __global float* low_buf, __global float* open_buf, __global float* volume_buf, __global float* result, int buf_size)"
+"	{                                                                  "
+"		const int i = get_global_id(0);                                ";
+string gen_cont::compile() {
+	string kernel = header;
+	kernel += "int b = " + to_string(n->leaves.size() - 1) + ";";//B will be used by methods to check which array indices they should use data from
+	kernel += "float leaves["+ to_string((n->leaves.size() + n->children.size())-1) +"] = {";
+	for (size_t i = 0; i < n->leaves.size(); i++) {
+		kernel += to_string(n->leaves.at(i));
+		kernel += ",";
+	}
+	kernel += "};";
+	for (size_t i = n->children.size() - 1; i > 0; i--) {
+		kernel += n->children.at(i)->a;
+		kernel += "b++;";
+	}
+	kernel += "result[i]=leaves[" + to_string((n->leaves.size() + n->children.size()) - 2) + "];}";
+	return kernel;
 }

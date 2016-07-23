@@ -4,7 +4,9 @@
 #include <string>
 #include <iostream>
 #include <fstream>
-#include <curl/curl.h>
+#ifdef _WIN64
+	#include <curl/curl.h>
+#endif
 #include <vector>
 #include <sstream>
 #include <iomanip>
@@ -30,6 +32,7 @@ tm string_to_date(const string &date) {
 	return time;
 }
 vector<string> stock::initialize() {
+	#ifdef _WIN64
 	CURL *curl;
 	CURLcode res;
 	char buffer[2048];
@@ -64,6 +67,7 @@ vector<string> stock::initialize() {
 		}
 		return result;
 	}
+	#endif
 	throw exception("Curl not initialized");
 }
 stock::stock(string symbol) {
