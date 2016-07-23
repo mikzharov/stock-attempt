@@ -1,4 +1,5 @@
 #pragma once
+
 #include "general.h"
 #include <iostream>
 #include <cstdlib>

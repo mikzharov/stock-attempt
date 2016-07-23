@@ -17,6 +17,7 @@
 #else
 	#include "CL/cl.h"
 #endif
+
 class population {
 public:
 	population(int size, int initial_worth, string stock);
@@ -25,9 +26,12 @@ public:
 	void simulate();
 	void init_opencl(ostream * log = nullptr);
 	int generations = 0;
-	inline void cl_error(cl_int error, string desc) {
+	inline static void cl_error(cl_int error, string desc) {
 		if (error != CL_SUCCESS) {
 			cerr << desc << endl;
+			cerr << error << endl;
+			_CrtSetReportMode(_CRT_ERROR, _CRTDBG_MODE_DEBUG);
+			exit(EXIT_FAILURE);
 			throw exception();
 		}
 	}

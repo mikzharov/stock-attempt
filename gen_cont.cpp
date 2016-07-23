@@ -1,4 +1,5 @@
 #pragma once
+
 #include "gen_cont.h"
 
 gen_cont::gen_cont(double money, stock * st) {
@@ -19,33 +20,32 @@ double gen_cont::get_result() const {
 	return result;
 }
 
-double gen_cont::evaluate() {
-	/*
-	result = n->result();
-	if (result * st->get_high(latest) < money && result >= 0) {//Simulates the program buying / selling stock if it has enough money
-		money -= result * st->get_high(latest);
-		stock_owned += (int)result;
-		return result;
-	}
-	if (result >= 0) {//Simulates buying maximum possible
-		int stock_bought = (int)(money / st->get_high(latest));//Find the maximum amount the can be bought
-		money -= stock_bought * st->get_high(latest);
-		stock_owned += stock_bought;
-		return result;
-	}
-	if (result < 0 && -result < stock_owned) {//Simulates selling stock it has
-		stock_owned += (int)result;
-		money += -((int)result) * st->get_low(latest);
-		return result;
-	}
-	if (result < 0) {//Simulates selling everything
-		money += stock_owned * st->get_low(latest);
-		stock_owned = 0;
-		return result;
+double gen_cont::evaluate(const float * data, size_t size) {
+	for (size_t i = size - 1; i > 0; i--) {
+		result = data[i];
+		if (result * st->get_high(latest) < money && result >= 0) {//Simulates the program buying / selling stock if it has enough money
+			money -= result * st->get_high(latest);
+			stock_owned += (int)result;
+			continue;
+		}
+		if (result >= 0) {//Simulates buying maximum possible
+			int stock_bought = (int)(money / st->get_high(latest));//Find the maximum amount the can be bought
+			money -= stock_bought * st->get_high(latest);
+			stock_owned += stock_bought;
+			continue;
+		}
+		if (result < 0 && -result < stock_owned) {//Simulates selling stock it has
+			stock_owned += (int)result;
+			money += -((int)result) * st->get_low(latest);
+			continue;
+		}
+		if (result < 0) {//Simulates selling everything
+			money += stock_owned * st->get_low(latest);
+			stock_owned = 0;
+			continue;
+		}
 	}
 	return result;
-	*/
-	return 0.0;
 }
 
 void gen_cont::update_fitness() {

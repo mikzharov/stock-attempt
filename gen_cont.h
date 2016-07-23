@@ -1,4 +1,5 @@
 #pragma once
+
 #include "general.h"
 #include <iostream>
 #include <cstdlib>
@@ -18,7 +19,7 @@ public:
 	double get_money() const;
 	int get_stock_owned() const;
 	double get_result() const;
-	double evaluate();
+	double evaluate(const float *, size_t size);
 	void update_fitness();
 	bool operator < (const gen_cont& con) {
 		return (fitness < con.fitness);

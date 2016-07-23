@@ -12,6 +12,8 @@
 #include <iomanip>
 #include <chrono>
 #include <assert.h>
+
+
 using namespace std;
 vector<quote> stock::content;
 vector<string> stock::symbol_index;

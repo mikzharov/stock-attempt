@@ -1,3 +1,4 @@
+
 #include "population.h"
 #include <stdio.h>
 #include <string>
@@ -8,6 +9,9 @@
 #include <assert.h>
 #include <memory>
 #include "gen_cont.h"
+
+#include <chrono>
+#include <thread>
 #include <algorithm>
 #include "node.h"
 #include <iostream>
@@ -17,6 +21,7 @@
 #else
 	#include "CL/cl.h"
 #endif
+
 random_in_range c;
 
 vector<float> adjusted;
@@ -25,7 +30,7 @@ vector<float> high;
 vector<float> low;
 vector<float> open;
 vector<float> volume;
-float result[8403];
+vector<float> results_v;
 population::population(int size, int initial_worth, string stock1) {
 	st.reset(new stock(stock1));
 	this->size = size;
@@ -54,8 +59,8 @@ cl_mem result_buf;
 
 void population::next_day() {
 	for (size_t i = 0; i < pop.size(); i++) {
-		//pop.at(i).compile();
-		string s_src = "__kernel void GENINDIV (__global float* adjusted_buf, __global float* close_buf, __global float* high_buf, __global float* low_buf, __global float* open_buf, __global float* volume_buf, __global float* result, int buf_size){result[get_global_id(0)]=adjusted_buf[get_global_id(0)];}";
+		string s_src = pop.at(i).compile();
+		//string s_src = "__kernel void GENINDIV (__global float* adjusted_buf, __global float* close_buf, __global float* high_buf, __global float* low_buf, __global float* open_buf, __global float* volume_buf, __global float* result, int buf_size){result[get_global_id(0)]=close_buf[get_global_id(0)];}";
 		const char * src = s_src.c_str();
 		cl_program pr = clCreateProgramWithSource(
 			context,//OpenCL context
@@ -71,7 +76,7 @@ void population::next_day() {
 			nullptr,
 			nullptr,//Callback info and options
 			nullptr);
-		char buffer[10000];
+		/*char buffer[10000];
 		size_t length = 0;
 		clGetProgramBuildInfo(
 			pr,
@@ -80,7 +85,7 @@ void population::next_day() {
 			sizeof(buffer),
 			&buffer,
 			&length);
-		cout << buffer;
+		cout << buffer;*/
 		cl_error(error, "building cl_program");
 		cl_kernel kernel = clCreateKernel(pr, "GENINDIV", &error);
 		cl_error(error, "making kernel");
@@ -98,14 +103,13 @@ void population::next_day() {
 		cl_error(error, "arg6");
 		error = clSetKernelArg(kernel, 6, sizeof(cl_mem), &result_buf);
 		cl_error(error, "arg7");
-		static const size_t buf_size = volume.size();
-		cout << buf_size << endl;
-		error = clSetKernelArg(kernel, 7, sizeof(float), &buf_size);
+		static const int buf_size = (int)volume.size();
+		error = clSetKernelArg(kernel, 7, sizeof(int), &buf_size);
 		cl_error(error, "arg8");
 		cl_command_queue cmd = clCreateCommandQueue(
 			context,
 			device_ids[0],
-			CL_QUEUE_OUT_OF_ORDER_EXEC_MODE_ENABLE,
+			CL_QUEUE_PROFILING_ENABLE,
 			&error);
 		cl_error(error, "making command queue");
 		const size_t globalWorkSize[] = { (size_t)buf_size };
@@ -115,9 +119,9 @@ void population::next_day() {
 			cmd,
 			kernel,
 			1, // One dimension
-			0, // Offset
+			nullptr, // Offset
 			globalWorkSize,
-			localWorkSize,
+			nullptr,
 			0, 
 			nullptr, 
 			&finish);
@@ -127,17 +131,18 @@ void population::next_day() {
 		float * result = (float *) clEnqueueMapBuffer(cmd,
 			result_buf,
 			CL_TRUE,
-			CL_MAP_WRITE,
+			CL_MAP_READ,
 			0,
 			sizeof(float) * volume.size(),
 			1,
 			&finish,
 			nullptr,
 			&error);
-		cl_error(error, "clEnqueueReadBuffer");
-		for (int i = 0; i < sizeof(result) / sizeof(float); i++) {
-			cout << result[i] << endl;
-		}
+
+		cl_error(error, "cl enquerange kernel");
+
+		pop.at(i).evaluate(result, buf_size);
+
 		error = clFlush(cmd);
 		cl_error(error, "clflush cmd");
 		error = clFinish(cmd);
@@ -148,7 +153,7 @@ void population::next_day() {
 		cl_error(error, "release program");
 		error = clReleaseCommandQueue(cmd);
 		cl_error(error, "release cmd");
-		free(result);
+		cout << i << endl;
 	}
 }
 
@@ -210,23 +215,24 @@ void population::init_opencl(ostream * log) {
 	if (log != nullptr) *log << "Created context" << endl;
 	size_t size = st->content[st->symbol_index_int].data.size();//Copies all stock data into neat arrays
 	for (size_t i = 0; i < size; i++) {
-		adjusted.push_back((float)st->content[st->symbol_index_int].data.at(0).adjusted);
+		adjusted.push_back((float)st->content[st->symbol_index_int].data.at(i).adjusted);
 	}
 	for (size_t i = 0; i < size; i++) {
-		close.push_back((float)st->content[st->symbol_index_int].data.at(0).close);
+		close.push_back((float)st->content[st->symbol_index_int].data.at(i).close);
 	}
 	for (size_t i = 0; i < size; i++) {
-		high.push_back((float)st->content[st->symbol_index_int].data.at(0).high);
+		high.push_back((float)st->content[st->symbol_index_int].data.at(i).high);
 	}
 	for (size_t i = 0; i < size; i++) {
-		low.push_back((float)st->content[st->symbol_index_int].data.at(0).low);
+		low.push_back((float)st->content[st->symbol_index_int].data.at(i).low);
 	}
 	for (size_t i = 0; i < size; i++) {
-		open.push_back((float)st->content[st->symbol_index_int].data.at(0).open);
+		open.push_back((float)st->content[st->symbol_index_int].data.at(i).open);
 	}
 	for (size_t i = 0; i < size; i++) {
-		volume.push_back((float)st->content[st->symbol_index_int].data.at(0).volume);
+		volume.push_back((float)st->content[st->symbol_index_int].data.at(i).volume);
 	}
+	results_v.resize(volume.size());
 	if (log != nullptr) *log << "Got arrays from stock data" << endl;
 	adjusted_buf = clCreateBuffer(context,
 		CL_MEM_READ_ONLY | CL_MEM_COPY_HOST_PTR,//Will only read from array, will copy adjusted array to GPU
@@ -271,9 +277,9 @@ void population::init_opencl(ostream * log) {
 	cl_error(error, "volume buf");
 
 	result_buf = clCreateBuffer(context,
-		CL_MEM_READ_WRITE | CL_MEM_USE_HOST_PTR,//Will only WRITE to array, will copy adjusted array to GPU
+		CL_MEM_READ_WRITE | CL_MEM_COPY_HOST_PTR,//Will only WRITE to array, will copy adjusted array to GPU
 		sizeof(float) * (volume.size()),//Size of array
-		result,//The pointer to the data
+		results_v.data(),//The pointer to the data
 		&error);//Error code   //Uses the size of volume
 	cl_error(error, "result buf");
 	if (log != nullptr) *log << "Allocated and copied arrays to OpenCL device" << endl;

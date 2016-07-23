@@ -57,7 +57,8 @@ string i =
 
 
 int main() {
-	
+	//_CrtSetDbgFlag(_CRTDBG_ALLOC_MEM_DF | _CRTDBG_LEAK_CHECK_DF);
+
 	unique_ptr<stock> amd = make_unique<stock>("AMD");
 	node::add_descriptor(stock_data_function_in_opencl("high"), 1, string("high"));
 	node::add_descriptor(stock_data_function_in_opencl("low"), 1, string("low"));
