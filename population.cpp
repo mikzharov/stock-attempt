@@ -21,16 +21,13 @@ population::population(int size, int initial_worth, string stock1) {
 	}
 }
 
-
-population::~population() {
-}
-
 void population::next_day() {
 	while (st->next_day()) {
 		for (int i = 0; i < pop.size(); i++) {
 			pop.at(i).evaluate();
 			pop.at(i).update_fitness();
 		}
+		cout << st->array_index << endl;
 	}
 	st->reset();
 	for (int i = 0; i < pop.size(); i++) {
@@ -40,7 +37,7 @@ void population::next_day() {
 
 void population::simulate() {
 	for (int i = 0; i < generations; i++) {
-		cout << i << endl;
+		
 		next_day();
 
 		std::sort(pop.begin(), pop.end());
