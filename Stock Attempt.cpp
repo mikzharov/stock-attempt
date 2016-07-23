@@ -98,7 +98,7 @@ int main() {
 
 
 		population a(10000, 10000, "AMD");
-		a.generations = 1;
+		a.generations = 25000;
 		a.simulate();
 
 
