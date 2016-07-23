@@ -1,4 +1,3 @@
-#include "stdafx.h"
 #include "node.h"
 #include <iostream>
 #include <string>
@@ -32,6 +31,18 @@ void node::init(int max_size, stock * s) {
 
 node::node(int max_depth, stock * s) {
 	init(max_depth, s);
+}
+
+double node::result() {
+	cache.clear();
+	cache.insert(cache.end(), leaves.begin(), leaves.end());
+	if (children.size() != 0) {
+		for (size_t i = children.size() - 1; i > 0; i--) {
+			double res = children.at(i)->a(cache, st);
+			cache.push_front(res);
+		}
+	}
+	return cache.at(0);
 }
 
 void node::write(ostream & out) {
@@ -78,7 +89,7 @@ void node::all_mutate() {
 	}
 }
 
-void node::add_descriptor(string a, unsigned int arity, const string &symbol) {
+void node::add_descriptor(action a, unsigned int arity, const string &symbol) {
 	if (is_double(symbol.c_str())) {
 		cerr << "add_descriptor(): symbol cannot be double";
 		throw exception();

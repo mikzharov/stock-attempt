@@ -25,60 +25,80 @@ random_in_range b;
 double rand(node::child_array &name, stock * a) {
 	return 0;
 }
-//__global float* adjusted_buf, __global float* close_buf, __global float* high_buf, __global float* low_buf, __global float* open_buf, __global float* open_buf, __global float* result, int buf_size,
-string stock_data_function_in_opencl(string buf_prefix) {
-	return 
-		"if((int)leaves[b] + i < i || (int)leaves[b] + i > buf_size || leaves[b] + i < 0) "
-		"{"
-		"	leaves[b+1] = 0;"
-		"}else{"
-		"	leaves[b+1] = " + buf_prefix + "_buf[(int)leaves[b] + i];"
-		"}"
-		"";
+double high(node::child_array &name, stock * a) {
+	if (a == nullptr)return 0.0;
+	return a->get_high((int) name.at(0));
 }
-
-string add =
-"if(b != 0){"
-"leaves[b+1] = leaves[b] + leaves [b-1];}else{leaves[b+1]=0;}";
-
-string multiply =
-"if(b != 0){"
-"leaves[b+1] = leaves[b] * leaves [b-1];}else{leaves[b+1]=0;}";
-
-string divide =
-"if(b == 0 || leaves[b-1] == 0) {leaves[b+1] = 0;}else{"
-"leaves[b+1] = leaves[b] / leaves [b-1];}";
-
-string i =
-"if(b < 4){leaves[b+1]=0;}else{"
-"if(leaves[b]< leaves[b-1]){leaves[b+1]=leaves[b-3];}else{leaves[b+1]=leaves[b-4];}}"
-""
-"";
-
-
+double adjusted(node::child_array &name, stock * a) {
+	if (a == nullptr)return 0.0;
+	return a->get_adjusted((int) name.at(0));
+}
+double low(node::child_array &name, stock * a) {
+	if (a == nullptr)return 0.0;
+	return a->get_low((int) name.at(0));
+}
+double volume(node::child_array &name, stock * a) {
+	if (a == nullptr)return 0.0;
+	return (double) a->get_volume((int) name.at(0));
+}
+double open(node::child_array &name, stock * a) {
+	if (a == nullptr)return 0.0;
+	return (double)a->get_open((int) name.at(0));
+}
+double close(node::child_array &name, stock * a) {
+	if (a == nullptr)return 0.0;
+	return (double)a->get_close((int) name.at(0));
+}
+double add(node::child_array &name, stock * a) {
+	if (name.size() < 2) {
+		return 0.0;
+	}
+	return name.at(0) + name.at(1);
+}
+double multiply(node::child_array &name, stock * a) {
+	if (name.size() < 2) {
+		return 0.0;
+	}
+	return name.at(0) * name.at(1);
+}
+double divide(node::child_array &name, stock * a) {
+	if (name.size() < 2) {
+		return 0.0;
+	}
+	if (name.at(1) == 0) return 0;
+	return name.at(0) / name.at(1);
+}
+double i(node::child_array &name, stock * a) {
+	if (name.size() < 4) {
+		return 0.0;
+	}
+	if (name.at(0) < name.at(1)) return name.at(3);
+	return name.at(4);
+}
 int main() {
-	//_CrtSetDbgFlag(_CRTDBG_ALLOC_MEM_DF | _CRTDBG_LEAK_CHECK_DF);
-
-	unique_ptr<stock> amd = make_unique<stock>("AMD");
-	node::add_descriptor(stock_data_function_in_opencl("high"), 1, string("high"));
-	node::add_descriptor(stock_data_function_in_opencl("low"), 1, string("low"));
-	node::add_descriptor(stock_data_function_in_opencl("adjusted"), 1, string("adjusted"));
-	node::add_descriptor(stock_data_function_in_opencl("open"), 1, string("open"));
-	node::add_descriptor(stock_data_function_in_opencl("volume"), 1, string("volume"));
-	node::add_descriptor(stock_data_function_in_opencl("close"), 1, string("close"));
 	
+	unique_ptr<stock> amd = make_unique<stock>("AMD");
+	node::add_descriptor(high, 1, string("high"));
+	node::add_descriptor(low, 1, string("low"));
+	node::add_descriptor(adjusted, 1, string("adjusted"));
+	node::add_descriptor(open, 1, string("open"));
+	node::add_descriptor(volume, 1, string("volume"));
+	node::add_descriptor(close, 1, string("close"));
+	//node::add_descriptor(rand, 0, string("c0"));
 	node::add_descriptor(add, 2, string("+"));
 	node::add_descriptor(multiply, 2, string("*"));
 	node::add_descriptor(divide, 2, string("/"));
 	node::add_descriptor(i, 4, string("i"));
-
 	int b = 1;
 	while(b == 1){
 		//gen_cont a(10000, amd.get());
-		//cout<<a.compile();
+		//a.evaluate();
+		//cout << "Money: " << a.get_money() << endl;
+		//cout << "Stock Owned: " << a.get_stock_owned() << endl;
+
 
 		population a(10000, 10000, "AMD");
-		a.generations = 1;
+		a.generations = 25000;
 		a.simulate();
 
 

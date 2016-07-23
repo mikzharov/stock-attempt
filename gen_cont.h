@@ -1,5 +1,4 @@
 #pragma once
-
 #include "general.h"
 #include <iostream>
 #include <cstdlib>
@@ -19,7 +18,7 @@ public:
 	double get_money() const;
 	int get_stock_owned() const;
 	double get_result() const;
-	double evaluate(const float *, size_t size);
+	double evaluate();
 	void update_fitness();
 	bool operator < (const gen_cont& con) {
 		return (fitness < con.fitness);
@@ -30,7 +29,6 @@ public:
 		money = 0;
 		stock_owned = 0;
 	}
-	string compile();
 private:
 	double fitness = 0;
 	stock * st;
