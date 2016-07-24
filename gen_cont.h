@@ -29,9 +29,15 @@ public:
 		money = 0;
 		stock_owned = 0;
 	}
+	stock * st;
+	double get_fitness() {
+		return fitness;
+	}
+	void set_fitness(double f) {
+		fitness = f;
+	}
 private:
 	double fitness = 0;
-	stock * st;
 	int stock_owned = 0;
 	double money = 0;//Money probably shouldn't be a double
 };
