@@ -21,59 +21,73 @@
 
 #include "population.h"
 
+#include <ctgmath>
+
 random_in_range b;
 double rand(node::child_array &name, stock * a) {
 	return 0;
 }
 double high(node::child_array &name, stock * a) {
-	if (a == nullptr)return 0.0;
+	if (a == nullptr)return 1;
 	return a->get_high((int) name.at(0));
 }
 double adjusted(node::child_array &name, stock * a) {
-	if (a == nullptr)return 0.0;
+	if (a == nullptr)return 1;
 	return a->get_adjusted((int) name.at(0));
 }
 double low(node::child_array &name, stock * a) {
-	if (a == nullptr)return 0.0;
+	if (a == nullptr)return 1;
 	return a->get_low((int) name.at(0));
 }
 double volume(node::child_array &name, stock * a) {
-	if (a == nullptr)return 0.0;
+	if (a == nullptr)return 1;
 	return (double) a->get_volume((int) name.at(0));
 }
 double open(node::child_array &name, stock * a) {
-	if (a == nullptr)return 0.0;
+	if (a == nullptr)return 1;
 	return (double)a->get_open((int) name.at(0));
 }
 double close(node::child_array &name, stock * a) {
-	if (a == nullptr)return 0.0;
+	if (a == nullptr)return 1;
 	return (double)a->get_close((int) name.at(0));
 }
 double add(node::child_array &name, stock * a) {
 	if (name.size() < 2) {
-		return 0.0;
+		return 1;
 	}
 	return name.at(0) + name.at(1);
 }
 double multiply(node::child_array &name, stock * a) {
 	if (name.size() < 2) {
-		return 0.0;
+		return 1;
 	}
 	return name.at(0) * name.at(1);
 }
 double divide(node::child_array &name, stock * a) {
 	if (name.size() < 2) {
-		return 0.0;
+		return 1;
 	}
-	if (name.at(1) == 0) return 0;
+	if (name.at(1) == 0) return 1;
 	return name.at(0) / name.at(1);
 }
 double i(node::child_array &name, stock * a) {
 	if (name.size() < 4) {
-		return 0.0;
+		return 1;
 	}
 	if (name.at(0) < name.at(1)) return name.at(3);
 	return name.at(4);
+}
+double negative(node::child_array &name, stock * a) {
+	if (name.size() < 1) {
+		return 1;
+	}
+	return - name.at(0);
+}
+double subtract(node::child_array &name, stock * a) {
+	if (name.size() < 2) {
+		return 1;
+	}
+	return name.at(0) - name.at(1);
 }
 int main() {
 	
@@ -89,17 +103,30 @@ int main() {
 	node::add_descriptor(multiply, 2, string("*"));
 	node::add_descriptor(divide, 2, string("/"));
 	node::add_descriptor(i, 4, string("i"));
+	node::add_descriptor(negative, 1, string("n"));
+	node::add_descriptor(subtract, 2, string("-"));
 	int b = 1;
 	while(b == 1){
 		//gen_cont a(10000, amd.get());
 		//a.evaluate();
+		//a.update_fitness();
+		//cout << "Fitness: " << a.get_fitness() << endl;
+		//if (a.get_fitness() == 0) throw exception();
+
 		//cout << "Money: " << a.get_money() << endl;
 		//cout << "Stock Owned: " << a.get_stock_owned() << endl;
 
 
-		population a(10000, 10000, "AMD");
-		a.generations = 25000;
+		population a(10000, 10000, "TEAM");
+		a.generations = 2500;
 		a.simulate();
+
+		//node a;
+		//ifstream myfile;
+		//myfile.open("NODE.txt");
+		//myfile >> a;
+		//myfile.close();
+
 
 
 

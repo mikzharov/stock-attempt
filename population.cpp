@@ -36,14 +36,15 @@ void population::next_gen(int section) {
 		}
 	}
 	s.reset();
-	for (int i = 0; i < pop.size(); i++) {
-		pop.at(i).reset();
-	}
 }
 
 void population::simulate() {
 	for (int i = 0; i < generations; i++) {
-		cout << i << endl;
+		for (int i = 0; i < pop.size(); i++) {
+			pop.at(i).reset();
+		}
+
+		//cout << i << endl;
 		//Visual studios is flagging this as an error, but it compiles and runs
 		auto handle0 = std::async(std::launch::async, &population::next_gen, this, 0);
 		auto handle1 = std::async(std::launch::async, &population::next_gen, this, 1);
@@ -57,25 +58,25 @@ void population::simulate() {
 		auto handle9 = std::async(std::launch::async, &population::next_gen, this, 9);
 
 		handle0.wait();
-		cout << "0 done" << endl;
+		//cout << "0 done" << endl;
 		handle1.wait();
-		cout << "1 done" << endl;
+		//cout << "1 done" << endl;
 		handle2.wait();
-		cout << "2 done" << endl;
+		//cout << "2 done" << endl;
 		handle3.wait();
-		cout << "3 done" << endl;
+		//cout << "3 done" << endl;
 		handle4.wait();
-		cout << "4 done" << endl;
+		//cout << "4 done" << endl;
 		handle5.wait();
-		cout << "5 done" << endl;
+		//cout << "5 done" << endl;
 		handle6.wait();
-		cout << "6 done" << endl;
+		//cout << "6 done" << endl;
 		handle7.wait();
-		cout << "7 done" << endl;
+		//cout << "7 done" << endl;
 		handle8.wait();
-		cout << "8 done" << endl;
+		//cout << "8 done" << endl;
 		handle9.wait();
-		cout << "9 done" << endl;
+		//cout << "9 done" << endl;
 		//next_gen();
 
 		std::sort(pop.begin(), pop.end());
@@ -86,16 +87,30 @@ void population::simulate() {
 			pop.at(c((int)(size - (double)size * top_percent_to_crossover), (int)size - 1)).n->crossover(to_crossover_with);
 		}
 
-		for (int i = 0; i < size * mutation_rate; i++) {
+		for (int i = 0; i < (int)((double)size * mutation_rate); i++) {
 			pop.at(c(0, (int)size - 1)).n->all_mutate();
 		}
-		if (pop.at(pop.size() - 1).get_money() == 0 && pop.at(pop.size() - 1).get_stock_owned() == 0) break;
+		cout << "=============================" << endl;
+		cout << "Fitness " << i << ": " << pop.at(pop.size() - 1).get_fitness() << endl;
+		cout << "Money " << i << ": " << pop.at(pop.size() - 1).get_money() << endl;
+		cout << "Stock Owned " << i << ": " << pop.at(pop.size() - 1).get_stock_owned() << endl;
+		cout << "Trades " << i << ": " << pop.at(pop.size() - 1).get_trades() << endl;
+		if (pop.at(pop.size() - 1).get_fitness() == 0) throw exception();
 	}
 	ofstream myfile;
 	myfile.open("NODE.txt");
-	myfile << pop.at(pop.size()-1).n.get();
+	myfile << pop.at(0).n.get();
 	myfile.close();
 	cout << "Stock day: " << st->array_index << endl;
 	cout << pop.at(pop.size() - 1).n.get() << endl;
 	cout << "Fitness: " << pop.at(pop.size() - 1).get_fitness() << endl;
+	cout << "Money: " << pop.at(pop.size() - 1).get_money() << endl;
+	cout << "Stock Owned: " << pop.at(pop.size() - 1).get_stock_owned() << endl;
+	cout << "Trades: " << pop.at(pop.size() - 1).get_trades() << endl << endl;
+
+	cout << "Fitness 1: " << pop.at(0).get_fitness() << endl;
+	cout << "Money 1: " << pop.at(0).get_money() << endl;
+	cout << "Stock Owned 1: " << pop.at(0).get_stock_owned() << endl;
+	cout << "Trades 1: " << pop.at(0).get_trades() << endl;
+	cout << pop.at(0).n.get() << endl;
 }

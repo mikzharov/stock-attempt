@@ -41,16 +41,14 @@ public:
 	const static char delimiter;
 	const static char end_node;
 
-	static descriptor get_random_descriptor(size_t = -1);
+	static descriptor * get_random_descriptor();
 
 	void crossover(node * other);
-private:
-	static vector<vector<descriptor>> descriptors;
-
-	vector<unique_ptr<descriptor>> children;
 	vector<double> leaves;
+	static vector<descriptor> descriptors;
+	vector<descriptor *> children;
+private:
 	child_array cache;
-
 	stock * st;
 };
 ostream& operator<<(ostream &out, node&  other);

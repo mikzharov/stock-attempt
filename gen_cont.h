@@ -23,20 +23,27 @@ public:
 	bool operator < (const gen_cont& con) {
 		return (fitness < con.fitness);
 	}
-	double result = 0;
+	int result = 0;
 	unique_ptr<node> n;
+	double original_money = 0;
 	void reset() {
-		money = 0;
+		money = original_money;
 		stock_owned = 0;
+		trades = 0;
+		fitness = 0;
 	}
 	stock * st;
 	double get_fitness() {
 		return fitness;
 	}
-	void set_fitness(double f) {
-		fitness = f;
+	int get_trades() {
+		return trades;
 	}
+	//void set_fitness(double f) {
+	//	fitness = f;
+	//}
 private:
+	int trades = 0;
 	double fitness = 0;
 	int stock_owned = 0;
 	double money = 0;//Money probably shouldn't be a double

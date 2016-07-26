@@ -16,7 +16,7 @@
 
 const char node::delimiter = ',';
 const char node::end_node = '`';
-vector<vector<node::descriptor>> node::descriptors;
+vector<node::descriptor> node::descriptors;
 random_in_range r;
 void node::init(int max_size, stock * s) {
 	st = s;
@@ -25,7 +25,7 @@ void node::init(int max_size, stock * s) {
 		leaves.push_back(r(-100, 100));
 	}
 	for (int i = 0; i < max_size; i++) {
-		children.push_back(std::make_unique<descriptor>(get_random_descriptor()));
+		children.push_back(get_random_descriptor());
 	}
 }
 
@@ -62,31 +62,38 @@ void node::delete_mutate() {
 }
 
 void node::add_mutate() {
-	children.push_back(std::make_unique<descriptor>(get_random_descriptor()));
+	children.push_back(get_random_descriptor());
 }
 
 void node::all_mutate() {
-	int a = r(0, 1);
+	int a = r(0, 4);
 	switch (a) {
 	case 0:
-		leaves.at(r(0, (int)leaves.size() - 1)) = r(-100, 100);
+		if (children.size() != 0)
+			children.at(r(0, (int)children.size() - 1)) = get_random_descriptor();
+		if(leaves.size() != 0)
+			leaves.at(r(0, (int)leaves.size() - 1)) = r(-100, 100);
 		break;
 	case 1:
-		a = r(0, 2);
-		switch (a) {
-		case 0:
-			if(children.size() != 0)
-			children.at(r(0, (int)children.size() - 1)) = make_unique<descriptor>(get_random_descriptor());
-			break;
-		case 1:
-			add_mutate();
-			break;
-		case 2:
-			delete_mutate();
-			break;
-		}
+	case 2:
+		add_mutate();
 		break;
+	case 3:
+		delete_mutate();
+		break;
+	case 4:
+		int begin = (int) r(0, (int)children.size() - 1);
+		int end = (int) r(begin, (int)children.size());
+		for (int i = begin; i < end; i++) {
+			children.at(i) = get_random_descriptor();
+		}
+		begin = (int) r(0, (int)leaves.size() - 1);
+		end = (int) r(begin, (int)leaves.size());
+		for (int i = begin; i < end; i++) {
+			leaves.at(i) = r(-1000, 1000);
+		}
 	}
+
 }
 
 void node::add_descriptor(action a, unsigned int arity, const string &symbol) {
@@ -106,16 +113,11 @@ void node::add_descriptor(action a, unsigned int arity, const string &symbol) {
 	d.a = a;
 	d.arity = arity;
 	d.symbol = symbol;
-	while (descriptors.size() <= arity || descriptors.size() == 0) {
-		descriptors.push_back(vector<descriptor>());
-	}
-	descriptors.at(arity).push_back(d);
+	descriptors.push_back(d);
 }
 
-node::descriptor node::get_random_descriptor(size_t arity) {
-	if (arity == -1) arity = r(0, (int)descriptors.size() - 1);
-	if (descriptors.at(arity).size() <= 0) arity = 1;
-	return descriptors.at(arity).at(r(0, (int)descriptors.at(arity).size() - 1));
+node::descriptor * node::get_random_descriptor() {
+	return &descriptors.at(r(0, (int)descriptors.size() - 1));
 }
 
 void node::crossover(node * other) {
@@ -126,9 +128,9 @@ void node::crossover(node * other) {
 
 	descriptor * temp;
 	for (int i = start; i < end; i++) {
-		temp = children.at(i).release();
-		children.at(i).reset(other->children.at(i).release());
-		other->children.at(i).reset(temp);
+		temp = children.at(i);
+		children.at(i) = (other->children.at(i));
+		other->children.at(i) = (temp);
 	}
 
 	lowest_size = std::min((int)other->leaves.size(), (int)leaves.size());
@@ -155,6 +157,20 @@ ostream& operator<<(ostream &out, node *  other) {
 }
 
 istream& operator>>(istream &in, node&  other) {
+	string s;
+	while (!in.eof()) {
+		std::getline(in, s, node::delimiter);
+		if (is_double(s.c_str())) {
+			other.leaves.push_back(stod(s.c_str()));
+		} else {
+			for (size_t i = 0; i < node::descriptors.size(); i++) {
+				if (s == node::descriptors.at(i).symbol) {
+					other.children.push_back(&node::descriptors.at(i));
+				}
+			}
+		}
+	}
+	
 	return in;
 }
 
