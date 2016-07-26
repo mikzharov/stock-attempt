@@ -2,10 +2,18 @@
     CONSOLE APPLICATION : Stock Attempt Project Overview
 ========================================================================
 
-AppWizard has created this Stock Attempt application for you.
+Please ignore the OpenCL branch, it failed to run faster than the master branch, and also crashed the graphics driver often.
 
-This file contains a summary of what you will find in each of the files that
-make up your Stock Attempt application.
+The master branch contains the main program used to try and apply GP to the stock market.
+
+Some assumptions made while writing this program are:
+* It is possible to make smart decision on whether to buy or sell a stock based solely on its market performance (specifically using only high, low, close, open, adjusted and volume information from the past).
+* The programs activity will not affect the stock market, just so that its effect does not have to be accounted for.
+
+Pit falls: 
+* Local maxima are a really big problem. An individual with a decent fitness dominates everything else because it is easy to create that individual, and hard to weed it out.
+* Processing power is a problem, this runs pretty slow.
+* The programs have never made more money than has originally been given to them.
 
 
 Stock Attempt.vcxproj
@@ -30,11 +38,5 @@ Other standard files:
 StdAfx.h, StdAfx.cpp
     These files are used to build a precompiled header (PCH) file
     named Stock Attempt.pch and a precompiled types file named StdAfx.obj.
-
-/////////////////////////////////////////////////////////////////////////////
-Other notes:
-
-AppWizard uses "TODO:" comments to indicate parts of the source code you
-should add to or customize.
 
 /////////////////////////////////////////////////////////////////////////////
