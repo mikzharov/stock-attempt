@@ -4,7 +4,7 @@
 
 Please ignore the OpenCL branch, it failed to run faster than the master branch, and also crashed the graphics driver often.
 
-The master branch contains the main program used to try and apply GP to the stock market.
+The master branch contains the main program used to try and apply GP to the stock market. This project didn't actually manage to "find the secrets" of the stock market (if it did, I wouldn't be in school). However it served as a great launch point for learning C++;
 
 Some assumptions made while writing this program are:
 * It is possible to make smart decision on whether to buy or sell a stock based solely on its market performance (specifically using only high, low, close, open, adjusted and volume information from the past).
